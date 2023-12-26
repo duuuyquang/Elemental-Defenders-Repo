@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -8,6 +11,9 @@ public class GameManager : MonoBehaviour
     public GameObject[] enemiesPrefabs;
     public GameObject[] playerPrefabs;
     public GameObject indicator;
+    public GameObject rsBtn;
+    public GameObject gameOverText;
+
     private Vector3[] enemySpawnPos =
     {
         new Vector3(-6, 0, 12),
@@ -24,13 +30,12 @@ public class GameManager : MonoBehaviour
 
     private int curPlayerSpawnPosIndex = 0;
     private bool playerSpawnable = true;
-    private bool isGameOver = false;
+    private bool isGameOver = true;
 
     // Start is called before the first frame update
     void Start()
     {
         SetIndicator(curPlayerSpawnPosIndex);
-        SpawnEnemy();
     }
 
     // Update is called once per frame
@@ -44,9 +49,6 @@ public class GameManager : MonoBehaviour
                 SpawnEnemy();
                 ShiftPlayerPos();
             }
-        } else
-        {
-            GameOver();
         }
 
 
@@ -67,12 +69,6 @@ public class GameManager : MonoBehaviour
             SpawnElement(Element.TYPE_WOOD);
             SetIndicator(curPlayerSpawnPosIndex);
         }
-    }
-
-    public void GameOver()
-    {
-        isGameOver = true;
-        Debug.Log("Game over");
     }
 
     void SpawnElement(int type)
@@ -123,5 +119,26 @@ public class GameManager : MonoBehaviour
         {
             curPlayerElement.transform.position += new Vector3(0, 0, 2);
         }
+    }
+
+    public void onRestartGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void StartGame()
+    {
+        isGameOver = false;
+        GameObject startBtn = GameObject.Find("StartButton");
+        GameObject titleText = GameObject.Find("TitleText");
+        startBtn.SetActive(false);
+        titleText.SetActive(false);
+    }
+
+    public void GameOver()
+    {
+        isGameOver = true;
+        rsBtn.SetActive(true);
+        gameOverText.SetActive(true);
     }
 }
