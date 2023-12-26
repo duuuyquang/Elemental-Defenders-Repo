@@ -6,6 +6,7 @@ public class Wall : MonoBehaviour
 {
     // Start is called before the first frame update
     private GameManager gameManager;
+    public GameObject explositionEffect;
     void Start()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
@@ -21,8 +22,16 @@ public class Wall : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Enemy"))
         {
-            Destroy(other.gameObject);
-            gameManager.GameOver();
+            StartCoroutine(GameOver(other.gameObject));
         }
+    }
+
+    IEnumerator GameOver(GameObject gameObject)
+    {
+        Instantiate(explositionEffect, gameObject.transform.position, explositionEffect.transform.rotation);
+        Destroy(gameObject);
+        gameManager.GameOver();
+        yield return new WaitForSeconds(1);
+        gameManager.SetGameOverMenu();
     }
 }

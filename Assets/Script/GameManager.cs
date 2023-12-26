@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     public GameObject indicator;
     public GameObject rsBtn;
     public GameObject gameOverText;
+    public GameObject enemySpawnIndicator;
 
     private Vector3[] enemySpawnPos =
     {
@@ -49,25 +50,24 @@ public class GameManager : MonoBehaviour
                 SpawnEnemy();
                 ShiftPlayerPos();
             }
-        }
 
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                SpawnElement(Element.TYPE_FIRE);
+                SetIndicator(curPlayerSpawnPosIndex);
+            }
 
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            SpawnElement(Element.TYPE_FIRE);
-            SetIndicator(curPlayerSpawnPosIndex);
-        }
+            if (Input.GetKeyDown(KeyCode.W))
+            {
+                SpawnElement(Element.TYPE_WATER);
+                SetIndicator(curPlayerSpawnPosIndex);
+            }
 
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            SpawnElement(Element.TYPE_WATER);
-            SetIndicator(curPlayerSpawnPosIndex);
-        }
-
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            SpawnElement(Element.TYPE_WOOD);
-            SetIndicator(curPlayerSpawnPosIndex);
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                SpawnElement(Element.TYPE_WOOD);
+                SetIndicator(curPlayerSpawnPosIndex);
+            }
         }
     }
 
@@ -104,6 +104,8 @@ public class GameManager : MonoBehaviour
         indicator.SetActive(true);
         for (int i = 0; i < ENEMY_NUM; i++)
         {
+            Instantiate(enemySpawnIndicator, enemySpawnPos[i], enemySpawnIndicator.transform.rotation);
+
             int randomIndex = Random.Range(0, enemiesPrefabs.Length);
             Instantiate(
                 enemiesPrefabs[randomIndex],
@@ -138,6 +140,9 @@ public class GameManager : MonoBehaviour
     public void GameOver()
     {
         isGameOver = true;
+    }
+
+    public void SetGameOverMenu() {
         rsBtn.SetActive(true);
         gameOverText.SetActive(true);
     }
