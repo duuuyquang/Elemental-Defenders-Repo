@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class EnemyWall : MonoBehaviour
 {
+
+    private Vector3 fireworkPos = new Vector3(0, -6, -13);
     // Start is called before the first frame update
     private GameManager gameManager;
     public GameObject explositionEffect;
@@ -26,7 +28,6 @@ public class EnemyWall : MonoBehaviour
     IEnumerator GameOver(GameObject gameObject)
     {
         Instantiate(explositionEffect, gameObject.transform.position, explositionEffect.transform.rotation);
-        Destroy(gameObject);
         GameObject[] enemyObjects = GameObject.FindGameObjectsWithTag("Enemy");
         foreach(GameObject enemyObject in enemyObjects)
         {
@@ -37,6 +38,6 @@ public class EnemyWall : MonoBehaviour
         gameManager.GameOver();
         yield return new WaitForSeconds(1);
         gameManager.SetWinScreen();
-        Instantiate(fireworkEffect, new Vector3(0,-6,-13) , fireworkEffect.transform.rotation);
+        Instantiate(fireworkEffect, fireworkPos, fireworkEffect.transform.rotation);
     }
 }

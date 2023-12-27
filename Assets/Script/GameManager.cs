@@ -7,9 +7,15 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    const int ENEMY_NUM = 3;
+    const int   ENEMY_NUM = 3;
     const float ENEMY_SPAWN_POS_Y = 12;
     const float PLAYER_SPAWN_POS_Y = 17;
+    const int   SHIFT_PLAYER_POS_Y = 3;
+
+    const int LEVEL_EASY = 1;
+    const int LEVEL_NORMAL = 2;
+    const int LEVEL_HARD = 3;
+
     public GameObject[] enemiesPrefabs;
     public GameObject[] playerPrefabs;
     public GameObject indicator;
@@ -17,6 +23,7 @@ public class GameManager : MonoBehaviour
     public GameObject gameOverText;
     public GameObject winText;
     public GameObject enemySpawnIndicator;
+    public GameObject enemyWall;
 
     private Vector3[] enemySpawnPos =
     {
@@ -35,6 +42,7 @@ public class GameManager : MonoBehaviour
     private int curPlayerSpawnPosIndex = 0;
     private bool playerSpawnable = false;
     private bool isGameOver = true;
+    private int difficulty;
 
     // Start is called before the first frame update
     void Start()
@@ -122,20 +130,67 @@ public class GameManager : MonoBehaviour
         GameObject[] curPlayerElements = GameObject.FindGameObjectsWithTag("Player");
         foreach(GameObject curPlayerElement in curPlayerElements)
         {
-            curPlayerElement.transform.position += new Vector3(0, 0, 3);
+            //curPlayerElement.transform.position += new Vector3(0, 0, SHIFT_PLAYER_POS_Y);
+            //curPlayerElement.transform.Translate(0, 0, 3);
+            StartCoroutine(MovePlayer(curPlayerElement));
         }
     }
 
-    public void onRestartGame()
+    IEnumerator MovePlayer(GameObject gameObject)
+    {
+        if(gameObject != null)
+        {
+            float count = 0;
+            float spf = 1.0f / 60.0f;
+            while (count < SHIFT_PLAYER_POS_Y)
+            {
+                gameObject.transform.Translate(0, 0, 0.15f);
+                count += 0.15f;
+                yield return new WaitForSeconds(spf);
+            }
+        }
+    }
+
+    public void RestartGame()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    public void StartGame()
+    void SetEnemyWall()
+    {
+        Color wallColor;
+        switch (difficulty)
+        {
+            case LEVEL_EASY:
+                enemyWall.transform.position = new Vector3(0, 0, -SHIFT_PLAYER_POS_Y * 2);
+                wallColor = new Color(0.74f, 0.7f, 0.05f);
+                break;
+            case LEVEL_NORMAL:
+                enemyWall.transform.position = new Vector3(0, 0, 0);
+                wallColor = new Color(1.0f, 0.64f, 0.0f);
+                break;
+            case LEVEL_HARD:
+                enemyWall.transform.position = new Vector3(0, 0, SHIFT_PLAYER_POS_Y * 2);
+                wallColor = new Color(0.52f, 0.0f, 0.73f);
+                break;
+            default:
+                enemyWall.transform.position = new Vector3(0, 0, 0);
+                wallColor = new Color(248, 124, 29);
+                break;
+        }
+        var main = enemyWall.transform.GetChild(0).gameObject.GetComponent<ParticleSystem>().main;
+        main.startColor = wallColor;
+        enemyWall.SetActive(true);
+    }
+
+    public void StartGame(int mode)
     {
         isGameOver = false;
         playerSpawnable = true;
-        GameObject startBtn = GameObject.Find("StartButton");
+        difficulty = mode;
+        SetEnemyWall();
+
+        GameObject startBtn = GameObject.Find("LevelButtons");
         GameObject titleText = GameObject.Find("TitleText");
         startBtn.SetActive(false);
         titleText.SetActive(false);
