@@ -16,14 +16,22 @@ public class GameManager : MonoBehaviour
     const int LEVEL_NORMAL = 2;
     const int LEVEL_HARD = 3;
 
+    private Color colorEasy = new Color(0.74f, 0.7f, 0.05f);
+    private Color colorNormal = new Color(1.0f, 0.64f, 0.0f);
+    private Color colorHard = new Color(0.52f, 0.0f, 0.73f);
+
     public GameObject[] enemiesPrefabs;
     public GameObject[] playerPrefabs;
     public GameObject indicator;
+    public GameObject enemySpawnIndicator;
+    public GameObject enemyWall;
+
     public GameObject rsBtn;
     public GameObject gameOverText;
     public GameObject winText;
-    public GameObject enemySpawnIndicator;
-    public GameObject enemyWall;
+    public GameObject instructionText;
+
+    public TextMeshProUGUI startCounter;
 
     private Vector3[] enemySpawnPos =
     {
@@ -131,12 +139,11 @@ public class GameManager : MonoBehaviour
         foreach(GameObject curPlayerElement in curPlayerElements)
         {
             //curPlayerElement.transform.position += new Vector3(0, 0, SHIFT_PLAYER_POS_Y);
-            //curPlayerElement.transform.Translate(0, 0, 3);
-            StartCoroutine(MovePlayer(curPlayerElement));
+            StartCoroutine(MovePlayerUnitForward(curPlayerElement));
         }
     }
 
-    IEnumerator MovePlayer(GameObject gameObject)
+    IEnumerator MovePlayerUnitForward(GameObject gameObject)
     {
         if(gameObject != null)
         {
@@ -163,19 +170,19 @@ public class GameManager : MonoBehaviour
         {
             case LEVEL_EASY:
                 enemyWall.transform.position = new Vector3(0, 0, -SHIFT_PLAYER_POS_Y * 2);
-                wallColor = new Color(0.74f, 0.7f, 0.05f);
+                wallColor = colorEasy;
                 break;
             case LEVEL_NORMAL:
                 enemyWall.transform.position = new Vector3(0, 0, 0);
-                wallColor = new Color(1.0f, 0.64f, 0.0f);
+                wallColor = colorNormal;
                 break;
             case LEVEL_HARD:
                 enemyWall.transform.position = new Vector3(0, 0, SHIFT_PLAYER_POS_Y * 2);
-                wallColor = new Color(0.52f, 0.0f, 0.73f);
+                wallColor = colorHard;
                 break;
             default:
                 enemyWall.transform.position = new Vector3(0, 0, 0);
-                wallColor = new Color(248, 124, 29);
+                wallColor = colorNormal;
                 break;
         }
         var main = enemyWall.transform.GetChild(0).gameObject.GetComponent<ParticleSystem>().main;
@@ -183,17 +190,55 @@ public class GameManager : MonoBehaviour
         enemyWall.SetActive(true);
     }
 
-    public void StartGame(int mode)
+    public void SetGameStartCounter(int difficultIndex)
+    {
+        Destroy(GameObject.Find("LevelButtons"));
+        Destroy(GameObject.Find("TitleText"));
+        StartCoroutine(StartCounter(difficultIndex));
+    }
+
+    IEnumerator StartCounter(int difficultIndex)
+    {
+        TextMeshProUGUI startCounterTextComponent = startCounter.GetComponent<TextMeshProUGUI>();
+        int count = 1;
+        while (count < 5)
+        {
+            string textToPrint = count.ToString();
+            if (count == 4)
+            {
+                textToPrint = "GO!";
+                StartCoroutine(MoveInstructionText());
+            }
+            startCounterTextComponent.text = textToPrint;
+            count++;
+            yield return new WaitForSeconds(0.7f);
+        }
+        StartGame(difficultIndex);
+        Destroy(startCounter);
+    }
+
+    void StartGame(int mode)
     {
         isGameOver = false;
         playerSpawnable = true;
         difficulty = mode;
         SetEnemyWall();
 
-        GameObject startBtn = GameObject.Find("LevelButtons");
-        GameObject titleText = GameObject.Find("TitleText");
-        startBtn.SetActive(false);
-        titleText.SetActive(false);
+        //GameObject startBtn = GameObject.Find("LevelButtons");
+        //startBtn.SetActive(false);
+    }
+
+    IEnumerator MoveInstructionText()
+    {
+        float count = 0;
+        float hz = 1.0f / 144.0f;
+        float upf = 6f;
+        while(count < 355 )
+        {
+            instructionText.transform.Translate(0, -upf, 0);
+            yield return new WaitForSeconds(hz);
+            count += upf;
+        }
     }
 
     public void GameOver()

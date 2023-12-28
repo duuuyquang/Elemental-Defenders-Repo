@@ -25,7 +25,7 @@ public class Wall : MonoBehaviour
         Instantiate(explositionEffect, gameObject.transform.position, explositionEffect.transform.rotation);
         Destroy(gameObject);
         gameManager.GameOver();
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.5f);
         gameManager.SetGameOverMenu();
     }
 }
