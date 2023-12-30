@@ -7,8 +7,8 @@ public class MoveDown : MonoBehaviour
     // Start is called before the first frame update
     [SerializeField]
     private float speed = 1.0f;
-    private const int MAX_SPEED = 10;
-    private const int MIN_SPEED = 5;
+    private const int MAX_SPEED = 5;
+    private const int MIN_SPEED = 9;
     void Start()
     {
         speed = Random.Range(MIN_SPEED, MAX_SPEED);

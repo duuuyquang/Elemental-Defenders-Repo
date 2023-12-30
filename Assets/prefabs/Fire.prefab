@@ -35,6 +35,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 721039309321028267}
+  - {fileID: 597961118398574107}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5295269855038536237
@@ -52,7 +53,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9214085552267481579}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -238,4 +239,66 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 4159976647224570, guid: b0bc1b6b391734647b9bb142bafc0819, type: 3}
   m_PrefabInstance: {fileID: 724905905073204817}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1090804075446077184
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1998208105274123057}
+    m_Modifications:
+    - target: {fileID: 535702951195797787, guid: 35f16650380449c78eeac51057eaff2a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 535702951195797787, guid: 35f16650380449c78eeac51057eaff2a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 535702951195797787, guid: 35f16650380449c78eeac51057eaff2a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 535702951195797787, guid: 35f16650380449c78eeac51057eaff2a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 535702951195797787, guid: 35f16650380449c78eeac51057eaff2a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 535702951195797787, guid: 35f16650380449c78eeac51057eaff2a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 535702951195797787, guid: 35f16650380449c78eeac51057eaff2a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 535702951195797787, guid: 35f16650380449c78eeac51057eaff2a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 535702951195797787, guid: 35f16650380449c78eeac51057eaff2a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 535702951195797787, guid: 35f16650380449c78eeac51057eaff2a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 875073071404757921, guid: 35f16650380449c78eeac51057eaff2a, type: 3}
+      propertyPath: m_Name
+      value: MushroomAngryPBR
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 35f16650380449c78eeac51057eaff2a, type: 3}
+--- !u!4 &597961118398574107 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 535702951195797787, guid: 35f16650380449c78eeac51057eaff2a, type: 3}
+  m_PrefabInstance: {fileID: 1090804075446077184}
   m_PrefabAsset: {fileID: 0}
