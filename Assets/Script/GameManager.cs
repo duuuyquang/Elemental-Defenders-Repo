@@ -1,9 +1,7 @@
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -16,6 +14,9 @@ public class GameManager : MonoBehaviour
 	const int LEVEL_NORMAL = 2;
 	const int LEVEL_HARD = 3;
 
+	public const int MODE_ATTACK = 1;
+	public const int MODE_DEFENSE = 2;
+
 	private Color colorEasy = new Color(0.74f, 0.7f, 0.05f);
 	private Color colorNormal = new Color(1.0f, 0.64f, 0.0f);
 	private Color colorHard = new Color(0.52f, 0.0f, 0.73f);
@@ -26,12 +27,13 @@ public class GameManager : MonoBehaviour
 	public GameObject enemySpawnIndicator;
 	public GameObject enemyWall;
 
-	public GameObject rsBtn;
-	public GameObject gameOverText;
-	public GameObject winText;
 	public GameObject instructionText;
 
 	public TextMeshProUGUI startCounter;
+	GameMenuManager gameMenuManager;
+
+
+    public GameObject gameMenuManagerObj;
 
 	private Vector3[] enemySpawnPos =
 	{
@@ -51,42 +53,55 @@ public class GameManager : MonoBehaviour
 	private bool playerSpawnable = false;
 	private bool isGameOver = true;
 	private int difficulty;
+	private int mode;
 
 	// Start is called before the first frame update
 	void Start()
 	{
 		SetIndicator(curPlayerSpawnPosIndex);
-	}
+        gameMenuManager = gameMenuManagerObj.gameObject.GetComponent<GameMenuManager>();
+
+    }
 
 	// Update is called once per frame
 	void Update()
 	{
 		if(!isGameOver)
 		{
-			int enemyNum = GameObject.FindGameObjectsWithTag("Enemy").Length;
-			if (enemyNum <= 0)
-			{
-				SpawnEnemy();
-				ShiftPlayerPos();
-			}
+			UpdateGameByMode(mode);
+        }
+	}
 
-			if (Input.GetKeyDown(KeyCode.Q))
-			{
-				SpawnElement(Element.TYPE_FIRE);
-				SetIndicator(curPlayerSpawnPosIndex);
-			}
+	void UpdateGameByMode(int mode)
+	{
+		switch(mode)
+		{
+			case MODE_DEFENSE:
+                int enemyNum = GameObject.FindGameObjectsWithTag("Enemy").Length;
+                if (enemyNum <= 0)
+                {
+                    SpawnEnemy();
+                    ShiftPlayerPos();
+                }
 
-			if (Input.GetKeyDown(KeyCode.W))
-			{
-				SpawnElement(Element.TYPE_WATER);
-				SetIndicator(curPlayerSpawnPosIndex);
-			}
+                if (Input.GetKeyDown(KeyCode.Q))
+                {
+                    SpawnElement(Element.TYPE_FIRE);
+                    SetIndicator(curPlayerSpawnPosIndex);
+                }
 
-			if (Input.GetKeyDown(KeyCode.E))
-			{
-				SpawnElement(Element.TYPE_WOOD);
-				SetIndicator(curPlayerSpawnPosIndex);
-			}
+                if (Input.GetKeyDown(KeyCode.W))
+                {
+                    SpawnElement(Element.TYPE_WATER);
+                    SetIndicator(curPlayerSpawnPosIndex);
+                }
+
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    SpawnElement(Element.TYPE_WOOD);
+                    SetIndicator(curPlayerSpawnPosIndex);
+                }
+                break;
 		}
 	}
 
@@ -191,16 +206,27 @@ public class GameManager : MonoBehaviour
 		enemyWall.SetActive(true);
 	}
 
-	public void SetGameStartCounter(int difficultIndex)
+	public void StartAttackMode(int difficultIndex)
 	{
-		Destroy(GameObject.Find("LevelButtons"));
-		Destroy(GameObject.Find("TitleText"));
-		StartCoroutine(StartCounter(difficultIndex));
+		SetGameStartCounter(MODE_ATTACK, difficultIndex);
 	}
 
-	IEnumerator StartCounter(int difficultIndex)
+    public void StartDefenseMode(int difficultIndex)
+    {
+        SetGameStartCounter(MODE_DEFENSE, difficultIndex);
+    }
+
+    private void SetGameStartCounter(int mode, int difficultIndex)
 	{
-		TextMeshProUGUI startCounterTextComponent = startCounter.GetComponent<TextMeshProUGUI>();
+        gameMenuManager.SetModeListScreen(false);
+		gameMenuManager.DestroyTitleText();
+
+        StartCoroutine(StartCounter(mode, difficultIndex));
+	}
+
+	IEnumerator StartCounter(int mode, int difficultIndex)
+	{
+        TextMeshProUGUI startCounterTextComponent = gameMenuManager.StartCounter.GetComponent<TextMeshProUGUI>();
 		int count = 1;
 		while (count < 5)
 		{
@@ -208,37 +234,25 @@ public class GameManager : MonoBehaviour
 			if (count == 4)
 			{
 				textToPrint = "GO!";
-				//StartCoroutine(MoveInstructionText());
 			}
 			startCounterTextComponent.text = textToPrint;
 			count++;
 			yield return new WaitForSeconds(0.7f);
 		}
-		StartGame(difficultIndex);
+		StartGame(mode, difficultIndex);
 		Destroy(startCounter);
-	}
 
-	void StartGame(int mode)
+    }
+
+	void StartGame(int modeIndex, int difficultIndex)
 	{
 		isGameOver = false;
 		playerSpawnable = true;
-		difficulty = mode;
+		difficulty = difficultIndex;
+		mode = modeIndex;
+
 		SetEnemyWall();
 	}
-
-	//IEnumerator MoveInstructionText()
-	//{
-	//    float count = 0;
-	//    float hz = 1.0f / 144.0f;
-	//    float upf = 3f;
-	//    float moveHeight = Screen.height / 3f;
-	//    while (count < moveHeight)
-	//    {
-	//        instructionText.transform.Translate(0, -upf, 0);
-	//        yield return new WaitForSeconds(hz);
-	//        count += upf;
-	//    }
-	//}
 
 	public void GameOver()
 	{
@@ -247,13 +261,11 @@ public class GameManager : MonoBehaviour
 
 	public void SetWinScreen()
 	{
-		winText.SetActive(true);
-		rsBtn.SetActive(true);
+		gameMenuManager.SetWinScreen(true);
 	}
 
 	public void SetGameOverMenu()
 	{
-		rsBtn.SetActive(true);
-		gameOverText.SetActive(true);
+		gameMenuManager.SetGameOverScreen(true);
 	}
 }
