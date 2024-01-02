@@ -150,6 +150,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerExplosionPrefab: {fileID: 248113493439115323, guid: 53230055f432bfa42a06b0d09326bd09, type: 3}
   enemyExplosionPrefab: {fileID: 5370020715958624929, guid: 60412e2b525ee8c45b6e7abb0c8b8c3c, type: 3}
+  playerElementType: 2
 --- !u!1001 &2414214548931060189
 PrefabInstance:
   m_ObjectHideFlags: 0

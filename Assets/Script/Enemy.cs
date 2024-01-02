@@ -1,17 +1,24 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class MoveDown : MonoBehaviour
+public class Enemy : MonoBehaviour
 {
-    // Start is called before the first frame update
     [SerializeField]
     private float speed = 1.0f;
-    private const int MAX_SPEED = 5;
-    private const int MIN_SPEED = 9;
+
+    [SerializeField]
+    private int elementType;
+
+    private GameManager gameManager;
+
+    public int ElementType
+    {
+        get { return elementType; }
+    }
+
     void Start()
     {
-        speed = Random.Range(MIN_SPEED, MAX_SPEED);
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        speed = gameManager.SetEnemySpeed();
     }
 
     // Update is called once per frame

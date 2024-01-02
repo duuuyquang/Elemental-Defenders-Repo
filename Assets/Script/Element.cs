@@ -10,6 +10,10 @@ public abstract class Element
     public const int TYPE_WOOD  = 3;
     public const int TYPE_MAX   = 3;
 
+    public const int TYPE_STRONGER = 1;
+    public const int TYPE_WEAKER = 0;
+    public const int TYPE_DRAW = -1;
+
     protected int type;
 
     [SerializeField]

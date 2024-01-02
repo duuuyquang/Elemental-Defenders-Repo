@@ -7,57 +7,77 @@ public class OnTouchEnemy : MonoBehaviour
 
     public GameObject playerExplosionPrefab;
     public GameObject enemyExplosionPrefab;
+    public int playerElementType;
+
+    private GameManager gameManager;
 
     private void Start()
     {
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+
+        switch (playerElementType)
+        {
+            case Element.TYPE_FIRE:
+                playerElement = new Fire();
+                break;
+            case Element.TYPE_WATER:
+                playerElement = new Water();
+                break;
+            case Element.TYPE_WOOD:
+                playerElement = new Wood();
+                break;
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        switch (gameObject.name)
-        {
-            case "Fire(Clone)":
-                playerElement = new Fire();
-                break;
-            case "Water(Clone)":
-                playerElement = new Water();
-                break;
-            case "Wood(Clone)":
-                playerElement = new Wood();
-                break;
-        }
-
         if (collision.transform.CompareTag("Enemy"))
         {
-            if (collision.gameObject.name == "EnemyFire(Clone)")
-            {
-                enemyType = Element.TYPE_FIRE;
-            }
+            ProcessCollisionOnEnemy(collision);
+        }
+    }
 
-            if (collision.gameObject.name == "EnemyWater(Clone)")
-            {
-                enemyType = Element.TYPE_WATER;
-            }
+    private void ProcessCollisionOnEnemy(Collision collision)
+    {
+        GameObject enemyObj = collision.gameObject;
+        Enemy enemy = enemyObj.GetComponent<Enemy>();
+        switch (gameManager.GameMode)
+        {
+            case GameManager.MODE_DEFENSE:
 
-            if (collision.gameObject.name == "EnemyWood(Clone)")
-            {
-                enemyType = Element.TYPE_WOOD;
-            }
+                if (playerElement.GetTypeAdvantage(enemy.ElementType) == Element.TYPE_STRONGER)
+                {
+                    EnemyExplosive(enemyObj);
+                }
+                else if (playerElement.GetTypeAdvantage(enemy.ElementType) == Element.TYPE_WEAKER)
+                {
+                    PlayerExplosive();
+                }
+                else
+                {
+                    Destroy(enemyObj);
+                    PlayerExplosive();
+                }
+                break;
 
-            if (playerElement.GetTypeAdvantage(enemyType) == 1)
-            {
-                EnemyExplosive(collision.gameObject);
-            }
-            else if (playerElement.GetTypeAdvantage(enemyType) == 0)
-            {
-                PlayerExplosive();
-            }
-            else
-            {
-                Destroy(collision.gameObject);
-                PlayerExplosive();
-            }
-
+            case GameManager.MODE_ATTACK:
+                if (playerElement.GetTypeAdvantage(enemy.ElementType) == Element.TYPE_STRONGER)
+                {
+                    EnemyExplosive(enemyObj);
+                    PlayerExplosive();
+                    gameManager.Score += 3;
+                }
+                else if (playerElement.GetTypeAdvantage(enemy.ElementType) == Element.TYPE_WEAKER)
+                {
+                    PlayerExplosive();
+                }
+                else
+                {
+                    Destroy(enemyObj);
+                    PlayerExplosive();
+                    gameManager.Score += 1;
+                }
+                break;
         }
     }
 

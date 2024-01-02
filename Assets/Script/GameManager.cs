@@ -1,21 +1,31 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
-	const int   ENEMY_NUM = 3;
-	const float ENEMY_SPAWN_POS_Y = 12;
-	const float PLAYER_SPAWN_POS_Y = 17;
-	const int   SHIFT_PLAYER_POS_Y = 3;
+	const int ENEMY_NUM = 3;
 
-	const int LEVEL_EASY = 1;
-	const int LEVEL_NORMAL = 2;
-	const int LEVEL_HARD = 3;
+	const float ENEMY_SPAWN_POS_Y	= 12;
+	const float PLAYER_SPAWN_POS_Y	= 17;
 
-	public const int MODE_ATTACK = 1;
-	public const int MODE_DEFENSE = 2;
+	const int SHIFT_PLAYER_POS_Y	= 3;
+
+	const int LEVEL_EASY	= 1;
+	const int LEVEL_NORMAL	= 2;
+	const int LEVEL_HARD	= 3;
+
+	const float ENEMY_SPEED_EASY	= 4f;
+	const float ENEMY_SPEED_MEDIUM	= 6f;
+    const float ENEMY_SPEED_HARD	= 8f;
+
+    public const int MODE_ATTACK	= 1;
+	public const int MODE_DEFENSE	= 2;
+
+	public const int SEC_COUNT_BEFORE_START = 3;
 
 	private Color colorEasy = new Color(0.74f, 0.7f, 0.05f);
 	private Color colorNormal = new Color(1.0f, 0.64f, 0.0f);
@@ -26,14 +36,11 @@ public class GameManager : MonoBehaviour
 	public GameObject indicator;
 	public GameObject enemySpawnIndicator;
 	public GameObject enemyWall;
+	public GameObject ingameInstruction;
 
-	public GameObject instructionText;
+	public TextMeshProUGUI scoreText;
 
-	public TextMeshProUGUI startCounter;
-	GameMenuManager gameMenuManager;
-
-
-    public GameObject gameMenuManagerObj;
+	private GameMenuManager gameMenuManager;
 
 	private Vector3[] enemySpawnPos =
 	{
@@ -54,58 +61,105 @@ public class GameManager : MonoBehaviour
 	private bool isGameOver = true;
 	private int difficulty;
 	private int mode;
+    private int score = 0;
+	private int playerWallHP = 100;
+	private int enemyWallHP = 100;
 
-	// Start is called before the first frame update
-	void Start()
+    public int GameMode {  get { return mode; } }
+
+	public int Score {
+		get { return score; }
+		set {  
+			score = Math.Max(0, value);
+		}
+	}
+
+	public int PlayerWallHP
+	{
+		get { return playerWallHP; }
+		set
+		{
+			playerWallHP = value;
+		}
+	}
+
+    public int EnemyWallHP
+    {
+        get { return enemyWallHP; }
+        set
+        {
+            enemyWallHP = value;
+        }
+    }
+
+    // Start is called before the first frame update
+    void Start()
 	{
 		SetIndicator(curPlayerSpawnPosIndex);
-        gameMenuManager = gameMenuManagerObj.gameObject.GetComponent<GameMenuManager>();
-
+		gameMenuManager = GameObject.Find("GameMenuManager").GetComponent<GameMenuManager>();
     }
 
 	// Update is called once per frame
 	void Update()
 	{
-		if(!isGameOver)
+		DisplayScore();
+        if (!isGameOver)
 		{
-			UpdateGameByMode(mode);
+			UpdateGameByMode();
+            HandlelayerInput();
         }
 	}
 
-	void UpdateGameByMode(int mode)
+	public void DisplayScore()
 	{
-		switch(mode)
+		scoreText.text = "Score: " + score;
+    }
+
+	void UpdateGameByMode()
+	{
+		int enemyNum = GameObject.FindGameObjectsWithTag("Enemy").Length;
+        switch (mode)
 		{
-			case MODE_DEFENSE:
-                int enemyNum = GameObject.FindGameObjectsWithTag("Enemy").Length;
-                if (enemyNum <= 0)
-                {
-                    SpawnEnemy();
-                    ShiftPlayerPos();
-                }
-
-                if (Input.GetKeyDown(KeyCode.Q))
-                {
-                    SpawnElement(Element.TYPE_FIRE);
-                    SetIndicator(curPlayerSpawnPosIndex);
-                }
-
-                if (Input.GetKeyDown(KeyCode.W))
-                {
-                    SpawnElement(Element.TYPE_WATER);
-                    SetIndicator(curPlayerSpawnPosIndex);
-                }
-
-                if (Input.GetKeyDown(KeyCode.E))
-                {
-                    SpawnElement(Element.TYPE_WOOD);
-                    SetIndicator(curPlayerSpawnPosIndex);
-                }
+			case MODE_ATTACK:
+				if (enemyNum <= 0)
+				{
+					SpawnEnemy();
+				}
                 break;
+			case MODE_DEFENSE:
+				if (enemyNum <= 0)
+				{
+					SpawnEnemy();
+					ShiftPlayerPos();
+				}
+                break;
+			default:
+				return;
 		}
 	}
 
-	void SpawnElement(int type)
+    void HandlelayerInput()
+    {
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            SpawnElement(Element.TYPE_FIRE);
+            SetIndicator(curPlayerSpawnPosIndex);
+        }
+
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            SpawnElement(Element.TYPE_WATER);
+            SetIndicator(curPlayerSpawnPosIndex);
+        }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            SpawnElement(Element.TYPE_WOOD);
+            SetIndicator(curPlayerSpawnPosIndex);
+        }
+    }
+
+    void SpawnElement(int type)
 	{
 		if (playerSpawnable)
 		{
@@ -132,11 +186,8 @@ public class GameManager : MonoBehaviour
 
 	void SpawnEnemy()
 	{
-		curPlayerSpawnPosIndex = 0;
-		SetIndicator(curPlayerSpawnPosIndex);
-		playerSpawnable = true;
-		indicator.SetActive(true);
-		for (int i = 0; i < ENEMY_NUM; i++)
+		RestartPlayerSpawn();
+        for (int i = 0; i < ENEMY_NUM; i++)
 		{
 			Instantiate(enemySpawnIndicator, enemySpawnPos[i], enemySpawnIndicator.transform.rotation);
 
@@ -147,6 +198,14 @@ public class GameManager : MonoBehaviour
 				enemiesPrefabs[randomIndex].transform.rotation);
 		}
 	}
+
+	void RestartPlayerSpawn()
+	{
+        curPlayerSpawnPosIndex = 0;
+        SetIndicator(curPlayerSpawnPosIndex);
+        playerSpawnable = true;
+        indicator.SetActive(true);
+    }
 
 	void ShiftPlayerPos()
 	{
@@ -206,6 +265,28 @@ public class GameManager : MonoBehaviour
 		enemyWall.SetActive(true);
 	}
 
+	public float SetEnemySpeed()
+	{
+		float speed;
+		switch(difficulty)
+		{
+            case LEVEL_EASY:
+				speed = ENEMY_SPEED_EASY;
+                break;
+            case LEVEL_NORMAL:
+                speed = ENEMY_SPEED_MEDIUM;
+                break;
+            case LEVEL_HARD:
+                speed = ENEMY_SPEED_HARD;
+                break;
+            default:
+				speed = ENEMY_SPEED_MEDIUM;
+                break;
+        }
+
+		return speed;
+	}
+
 	public void StartAttackMode(int difficultIndex)
 	{
 		SetGameStartCounter(MODE_ATTACK, difficultIndex);
@@ -227,21 +308,20 @@ public class GameManager : MonoBehaviour
 	IEnumerator StartCounter(int mode, int difficultIndex)
 	{
         TextMeshProUGUI startCounterTextComponent = gameMenuManager.StartCounter.GetComponent<TextMeshProUGUI>();
-		int count = 1;
-		while (count < 5)
+		int count = SEC_COUNT_BEFORE_START;
+		while (count >= 0)
 		{
 			string textToPrint = count.ToString();
-			if (count == 4)
+			if (count == 0)
 			{
 				textToPrint = "GO!";
 			}
 			startCounterTextComponent.text = textToPrint;
-			count++;
+			count--;
 			yield return new WaitForSeconds(0.7f);
 		}
 		StartGame(mode, difficultIndex);
-		Destroy(startCounter);
-
+		Destroy(gameMenuManager.StartCounter);
     }
 
 	void StartGame(int modeIndex, int difficultIndex)
@@ -250,8 +330,9 @@ public class GameManager : MonoBehaviour
 		playerSpawnable = true;
 		difficulty = difficultIndex;
 		mode = modeIndex;
+		ingameInstruction.SetActive(true);
 
-		SetEnemyWall();
+        SetEnemyWall();
 	}
 
 	public void GameOver()
