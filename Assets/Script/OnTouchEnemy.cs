@@ -1,12 +1,15 @@
+using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class OnTouchEnemy : MonoBehaviour
 {
     private Element playerElement;
-    private int enemyType;
 
     public GameObject playerExplosionPrefab;
     public GameObject enemyExplosionPrefab;
+    public GameObject scorePrefab;
+
     public int playerElementType;
 
     private GameManager gameManager;
@@ -65,7 +68,8 @@ public class OnTouchEnemy : MonoBehaviour
                 {
                     EnemyExplosive(enemyObj);
                     PlayerExplosive();
-                    gameManager.Score += 3;
+                    gameManager.Score += GameManager.SCORE_GAIN_TYPE_ADVANTAGE;
+                    DisplayScoreGainEffect(GameManager.SCORE_GAIN_TYPE_ADVANTAGE);
                 }
                 else if (playerElement.GetTypeAdvantage(enemy.ElementType) == Element.TYPE_WEAKER)
                 {
@@ -75,10 +79,18 @@ public class OnTouchEnemy : MonoBehaviour
                 {
                     Destroy(enemyObj);
                     PlayerExplosive();
-                    gameManager.Score += 1;
+                    gameManager.Score += GameManager.SCORE_GAIN_TYPE_SAME;
+                    DisplayScoreGainEffect(GameManager.SCORE_GAIN_TYPE_SAME);
                 }
                 break;
         }
+    }
+
+    void DisplayScoreGainEffect(int point)
+    {
+        TextMeshPro text = scorePrefab.GetComponent<TextMeshPro>();
+        text.text = "+" + point;
+        Instantiate(scorePrefab, transform.position, scorePrefab.transform.rotation);
     }
 
     void PlayerExplosive()

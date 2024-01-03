@@ -2,11 +2,9 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    [SerializeField]
-    private float speed = 1.0f;
-
-    [SerializeField]
-    private int elementType;
+    [SerializeField] private float speed = 1.0f;
+    [SerializeField] private int elementType;
+    [SerializeField] private float damage;
 
     private GameManager gameManager;
 
@@ -14,6 +12,8 @@ public class Enemy : MonoBehaviour
     {
         get { return elementType; }
     }
+
+    public float Damage {  get { return damage; } }
 
     void Start()
     {

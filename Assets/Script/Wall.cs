@@ -1,18 +1,23 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Wall : MonoBehaviour
 {
-    // Start is called before the first frame update
+    const float MAX_HP = 100f;
+
+    public GameObject hpBar;
+    public GameObject explositionEffect;
+
+    [SerializeField] private float hp = MAX_HP;
+
     private GameManager gameManager;
     private float initialHPScale;
-    public GameObject hp;
-    public GameObject explositionEffect;
+
+
     void Start()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        initialHPScale = hp.transform.localScale.x;
+        initialHPScale = hpBar.transform.localScale.x;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -21,38 +26,46 @@ public class Wall : MonoBehaviour
         {
             switch(gameManager.GameMode)
             {
-                case GameManager.MODE_DEFENSE:
-                    StartCoroutine(GameOver(other.gameObject));
-                    break;
                 case GameManager.MODE_ATTACK:
-                    Instantiate(explositionEffect, gameObject.transform.position, explositionEffect.transform.rotation);
-                    Destroy(other.gameObject);
-                    gameManager.Score = (int)Mathf.Floor(gameManager.Score / 3);
-                    gameManager.PlayerWallHP = Mathf.Max(gameManager.PlayerWallHP - 20, 0);
+                    ProcessEnemyExplosion(other.gameObject);
+                    ProcessEnemyAttack(other.gameObject);
                     UpdateHPBar();
-                    if (gameManager.PlayerWallHP <= 0)
+                    if (hp <= 0)
                     {
-                        gameManager.GameOver();
-                        gameManager.SetGameOverMenu();
+                        StartCoroutine(GameOver());
                     }
+                    break;
+
+                case GameManager.MODE_DEFENSE:
+                    ProcessEnemyExplosion(other.gameObject);
+                    StartCoroutine(GameOver());
                     break;
             }
         }
     }
 
-    private void UpdateHPBar()
-    {
-        float curPercentage = gameManager.PlayerWallHP * 0.01f;
-        float newX = (initialHPScale - curPercentage) * 0.5f;
-        hp.transform.localPosition = new Vector3(-newX, hp.transform.localPosition.y, hp.transform.localPosition.z);
-        hp.transform.localScale = new Vector3(initialHPScale * curPercentage, hp.transform.localScale.y, hp.transform.localScale.z);
-    }
-
-
-    IEnumerator GameOver(GameObject gameObject)
+    private void ProcessEnemyExplosion(GameObject enemyObj)
     {
         Instantiate(explositionEffect, gameObject.transform.position, explositionEffect.transform.rotation);
-        Destroy(gameObject);
+        Destroy(enemyObj);
+    }
+
+    private void ProcessEnemyAttack(GameObject enemyObj)
+    {
+        Enemy enemy = enemyObj.GetComponent<Enemy>();
+        hp = Mathf.Max(hp - enemy.Damage, 0);
+    }
+
+    private void UpdateHPBar()
+    {
+        float curPercentage = hp / MAX_HP;
+        float newX = (initialHPScale - curPercentage) * 0.5f;
+        hpBar.transform.localPosition = new Vector3(-newX, hpBar.transform.localPosition.y, hpBar.transform.localPosition.z);
+        hpBar.transform.localScale = new Vector3(initialHPScale * curPercentage, hpBar.transform.localScale.y, hpBar.transform.localScale.z);
+    }
+
+    IEnumerator GameOver()
+    {
         gameManager.GameOver();
         yield return new WaitForSeconds(0.5f);
         gameManager.SetGameOverMenu();

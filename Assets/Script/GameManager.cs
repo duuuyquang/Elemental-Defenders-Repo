@@ -25,6 +25,9 @@ public class GameManager : MonoBehaviour
     public const int MODE_ATTACK	= 1;
 	public const int MODE_DEFENSE	= 2;
 
+	public const int SCORE_GAIN_TYPE_ADVANTAGE = 3;
+	public const int SCORE_GAIN_TYPE_SAME = 1;
+
 	public const int SEC_COUNT_BEFORE_START = 3;
 
 	private Color colorEasy = new Color(0.74f, 0.7f, 0.05f);
@@ -37,6 +40,8 @@ public class GameManager : MonoBehaviour
 	public GameObject enemySpawnIndicator;
 	public GameObject enemyWall;
 	public GameObject ingameInstruction;
+	public GameObject playerHPBar;
+	public GameObject enemyHPBar;
 
 	public TextMeshProUGUI scoreText;
 
@@ -62,8 +67,6 @@ public class GameManager : MonoBehaviour
 	private int difficulty;
 	private int mode;
     private int score = 0;
-	private int playerWallHP = 100;
-	private int enemyWallHP = 100;
 
     public int GameMode {  get { return mode; } }
 
@@ -73,24 +76,6 @@ public class GameManager : MonoBehaviour
 			score = Math.Max(0, value);
 		}
 	}
-
-	public int PlayerWallHP
-	{
-		get { return playerWallHP; }
-		set
-		{
-			playerWallHP = value;
-		}
-	}
-
-    public int EnemyWallHP
-    {
-        get { return enemyWallHP; }
-        set
-        {
-            enemyWallHP = value;
-        }
-    }
 
     // Start is called before the first frame update
     void Start()
@@ -330,9 +315,22 @@ public class GameManager : MonoBehaviour
 		playerSpawnable = true;
 		difficulty = difficultIndex;
 		mode = modeIndex;
-		ingameInstruction.SetActive(true);
+        SetUIInGameByMode();
+    }
 
-        SetEnemyWall();
+	void SetUIInGameByMode()
+	{
+		switch(mode)
+		{
+			case GameManager.MODE_ATTACK:
+				playerHPBar.SetActive(true);
+                ingameInstruction.SetActive(true);
+				break;
+			case GameManager.MODE_DEFENSE:
+				SetEnemyWall();
+                ingameInstruction.SetActive(true);
+                break;
+		}
 	}
 
 	public void GameOver()
