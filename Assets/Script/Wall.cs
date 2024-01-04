@@ -13,7 +13,6 @@ public class Wall : MonoBehaviour
     private GameManager gameManager;
     private float initialHPScale;
 
-
     void Start()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();

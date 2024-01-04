@@ -13,10 +13,12 @@ public class OnTouchEnemy : MonoBehaviour
     public int playerElementType;
 
     private GameManager gameManager;
+    private Player player;
 
     private void Start()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        player = GameObject.Find("Player").GetComponent<Player>();
 
         switch (playerElementType)
         {
@@ -70,6 +72,7 @@ public class OnTouchEnemy : MonoBehaviour
                     PlayerExplosive();
                     gameManager.Score += GameManager.SCORE_GAIN_TYPE_ADVANTAGE;
                     DisplayScoreGainEffect(GameManager.SCORE_GAIN_TYPE_ADVANTAGE);
+                    player.UpdateGaugeBar(15f);
                 }
                 else if (playerElement.GetTypeAdvantage(enemy.ElementType) == Element.TYPE_WEAKER)
                 {

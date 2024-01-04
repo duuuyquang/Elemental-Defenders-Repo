@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    [SerializeField] private float speed = 1.0f;
+    [SerializeField] public float speed = 1.0f;
     [SerializeField] private int elementType;
     [SerializeField] private float damage;
 
@@ -29,6 +29,19 @@ public class Enemy : MonoBehaviour
         if(transform.position.z < -90)
         {
             Destroy(gameObject);
+        }
+    }
+
+    public static void SetAllUnitSpeed(float speed)
+    {
+        GameObject[] enemyObjList = GameObject.FindGameObjectsWithTag("Enemy");
+        if (enemyObjList.Length > 0)
+        {
+            foreach (GameObject enemyObj in enemyObjList)
+            {
+                Enemy enemy = enemyObj.GetComponent<Enemy>();
+                enemy.speed = speed;
+            }
         }
     }
 }

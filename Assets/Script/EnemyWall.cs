@@ -4,24 +4,60 @@ using UnityEngine;
 
 public class EnemyWall : MonoBehaviour
 {
+    const float MAX_HP = 100f;
+
+    [SerializeField] private float hp = MAX_HP;
 
     private Vector3 fireworkPos = new Vector3(0, -6, -13);
-    // Start is called before the first frame update
+
     private GameManager gameManager;
+    private float initialHPScale;
+
+
     public GameObject explositionEffect;
     public GameObject fireworkEffect;
     public GameObject enemyExplosionEffect;
+    public GameObject hpBar;
 
     void Start()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        initialHPScale = hpBar.transform.localScale.x;
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Player"))
+        ProcessByGameMode(other.gameObject);
+    }
+
+    void ProcessByGameMode(GameObject otherObj)
+    {
+        switch (gameManager.GameMode)
         {
-            StartCoroutine(GameOver(other.gameObject));
+            case GameManager.MODE_ATTACK:
+                if (otherObj.CompareTag("Bullet"))
+                {
+                    Destroy(otherObj);
+                    Instantiate(explositionEffect, otherObj.transform.position, explositionEffect.transform.rotation);
+                    ProcessPlayerAttack(otherObj);
+                    UpdateHPBar();
+                    if (hp <= 0)
+                    {
+                        StartCoroutine(GameOver(otherObj));
+                    } 
+                    else
+                    {
+                        Enemy.SetAllUnitSpeed(gameManager.SetEnemySpeed());
+                    }
+                }
+                break;
+
+            case GameManager.MODE_DEFENSE:
+                if (otherObj.CompareTag("Player"))
+                {
+                    StartCoroutine(GameOver(otherObj));
+                }
+                break;
         }
     }
 
@@ -39,5 +75,19 @@ public class EnemyWall : MonoBehaviour
         yield return new WaitForSeconds(1);
         gameManager.SetWinScreen();
         Instantiate(fireworkEffect, fireworkPos, fireworkEffect.transform.rotation);
+    }
+
+    private void UpdateHPBar()
+    {
+        float curPercentage = hp / MAX_HP;
+        float newX = (initialHPScale - curPercentage) * 0.5f;
+        hpBar.transform.localPosition = new Vector3(-newX, hpBar.transform.localPosition.y, hpBar.transform.localPosition.z);
+        hpBar.transform.localScale = new Vector3(initialHPScale * curPercentage, hpBar.transform.localScale.y, hpBar.transform.localScale.z);
+    }
+
+    private void ProcessPlayerAttack(GameObject bulletObj)
+    {
+        Bullet bullet = bulletObj.GetComponent<Bullet>();
+        hp = Mathf.Max(hp - bullet.Damage, 0);
     }
 }

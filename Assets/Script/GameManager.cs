@@ -172,7 +172,7 @@ public class GameManager : MonoBehaviour
 	void SpawnEnemy()
 	{
 		RestartPlayerSpawn();
-        for (int i = 0; i < ENEMY_NUM; i++)
+		for (int i = 0; i < ENEMY_NUM; i++)
 		{
 			Instantiate(enemySpawnIndicator, enemySpawnPos[i], enemySpawnIndicator.transform.rotation);
 
@@ -182,7 +182,9 @@ public class GameManager : MonoBehaviour
 				enemySpawnPos[i] + new Vector3(0, enemiesPrefabs[randomIndex].transform.position.y, 0),
 				enemiesPrefabs[randomIndex].transform.rotation);
 		}
-	}
+		Player player = GameObject.Find("Player").GetComponent<Player>();
+        player.UpdateGaugeBar(100f);
+    }
 
 	void RestartPlayerSpawn()
 	{
@@ -324,6 +326,7 @@ public class GameManager : MonoBehaviour
 		{
 			case GameManager.MODE_ATTACK:
 				playerHPBar.SetActive(true);
+				enemyHPBar.SetActive(true);
                 ingameInstruction.SetActive(true);
 				break;
 			case GameManager.MODE_DEFENSE:
