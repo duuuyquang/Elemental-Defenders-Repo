@@ -8,15 +8,10 @@ public class EnemyWall : MonoBehaviour
 
     [SerializeField] private float hp = MAX_HP;
 
-    private Vector3 fireworkPos = new Vector3(0, -6, -13);
-
     private GameManager gameManager;
     private float initialHPScale;
 
-
-    public GameObject explositionEffect;
-    public GameObject fireworkEffect;
-    public GameObject enemyExplosionEffect;
+    public GameObject explosition;
     public GameObject hpBar;
 
     void Start()
@@ -37,13 +32,13 @@ public class EnemyWall : MonoBehaviour
             case GameManager.MODE_ATTACK:
                 if (otherObj.CompareTag("Bullet"))
                 {
+                    ProcessExplosion(otherObj);
                     Destroy(otherObj);
-                    Instantiate(explositionEffect, otherObj.transform.position, explositionEffect.transform.rotation);
                     ProcessPlayerAttack(otherObj);
                     UpdateHPBar();
                     if (hp <= 0)
                     {
-                        StartCoroutine(GameOver(otherObj));
+                        StartCoroutine(GameOver());
                     } 
                     else
                     {
@@ -55,26 +50,32 @@ public class EnemyWall : MonoBehaviour
             case GameManager.MODE_DEFENSE:
                 if (otherObj.CompareTag("Player"))
                 {
-                    StartCoroutine(GameOver(otherObj));
+                    StartCoroutine(GameOver());
                 }
                 break;
         }
     }
 
-    IEnumerator GameOver(GameObject gameObject)
+    IEnumerator GameOver()
     {
-        Instantiate(explositionEffect, gameObject.transform.position, explositionEffect.transform.rotation);
-        GameObject[] enemyObjects = GameObject.FindGameObjectsWithTag("Enemy");
-        foreach(GameObject enemyObject in enemyObjects)
-        {
-            Destroy(enemyObject);
-            Instantiate(enemyExplosionEffect, enemyObject.transform.position, enemyObject.transform.rotation);
-        }
-
-        gameManager.GameOver();
+        clearAllEnemyUnit();
+        gameManager.GameOver = true;
         yield return new WaitForSeconds(1);
         gameManager.SetWinScreen();
-        Instantiate(fireworkEffect, fireworkPos, fireworkEffect.transform.rotation);
+    }
+
+    private void ProcessExplosion(GameObject other)
+    {
+        Instantiate(explosition, other.transform.position, explosition.transform.rotation);
+    }
+
+    private void clearAllEnemyUnit() {
+        GameObject[] enemyObjects = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject enemyObject in enemyObjects)
+        {
+            var enemyUnit = enemyObject.GetComponent<Enemy>();
+            enemyUnit.TriggerExplosion();
+        }
     }
 
     private void UpdateHPBar()

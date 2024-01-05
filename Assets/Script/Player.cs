@@ -10,14 +10,10 @@ public class Player : MonoBehaviour
     public GameObject maxGaugeEffect;
     public GameObject gaugeExplosion;
 
-    private float curGauge = 100f;
-    private GameManager gameManager;
+    private float curGauge;
     private float initialGaugeScale = 1f;
 
-    private GameObject gaugeBar;
     private GameObject curGaugeBar;
-
-    private ParticleSystem test;
 
     public float CurGauge {
         get { return curGauge; }
@@ -27,18 +23,13 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        gaugeBar = GameObject.Find("Gauge");
         curGaugeBar = GameObject.Find("curGauge");
-        test = gaugeExplosion.GetComponent<ParticleSystem>();
+        curGauge = 0;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Z)) {
-            test.Play();
-        }
         if (IsAttackable() && Input.GetKeyDown(KeyCode.Space))
         {
             ProcessAttackEnemy();
@@ -48,9 +39,9 @@ public class Player : MonoBehaviour
 
     private void ProcessAttackEnemy()
     {
-        Enemy.SetAllUnitSpeed(-2.0f);
-        StartCoroutine(SpamBullet());
-
+        Enemy.SetAllUnitSpeed(-1.0f);
+        //StartCoroutine(SpamBullet());
+        ShootBullet();
     }
 
     IEnumerator SpamBullet()
@@ -58,16 +49,24 @@ public class Player : MonoBehaviour
         int count = 0;
         while(count < 5)
         {
-            Instantiate(bullet, new Vector3(-3, 1, -19), bullet.transform.rotation);
-            Instantiate(bullet, new Vector3(3, 1, -19), bullet.transform.rotation);
+            Instantiate(bullet, new Vector3(-5, 1, -20), bullet.transform.rotation);
+            Instantiate(bullet, new Vector3(0, 1, -19), bullet.transform.rotation);
+            Instantiate(bullet, new Vector3(5, 1, -20), bullet.transform.rotation);
             yield return new WaitForSeconds(0.2f);
             count++;
         }
     }
 
+    private void ShootBullet()
+    {
+        Instantiate(bullet, new Vector3(-5, 1, -20), bullet.transform.rotation);
+        Instantiate(bullet, new Vector3(0, 1, -19), bullet.transform.rotation);
+        Instantiate(bullet, new Vector3(5, 1, -20), bullet.transform.rotation);
+    }
+
     private bool IsAttackable()
     {
-        return curGauge == MAX_GAUGE;
+        return curGauge >= MAX_GAUGE;
     }
 
     public void UpdateGaugeBar(float value)

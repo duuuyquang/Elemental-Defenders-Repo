@@ -30,10 +30,6 @@ public class GameManager : MonoBehaviour
 
 	public const int SEC_COUNT_BEFORE_START = 3;
 
-	private Color colorEasy = new Color(0.74f, 0.7f, 0.05f);
-	private Color colorNormal = new Color(1.0f, 0.64f, 0.0f);
-	private Color colorHard = new Color(0.52f, 0.0f, 0.73f);
-
 	public GameObject[] enemiesPrefabs;
 	public GameObject[] playerPrefabs;
 	public GameObject indicator;
@@ -42,12 +38,19 @@ public class GameManager : MonoBehaviour
 	public GameObject ingameInstruction;
 	public GameObject playerHPBar;
 	public GameObject enemyHPBar;
+    public GameObject firework;
 
-	public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI scoreText;
 
-	private GameMenuManager gameMenuManager;
+    private GameMenuManager gameMenuManager;
 
-	private Vector3[] enemySpawnPos =
+    private Color colorEasy = new Color(0.74f, 0.7f, 0.05f);
+    private Color colorNormal = new Color(1.0f, 0.64f, 0.0f);
+    private Color colorHard = new Color(0.52f, 0.0f, 0.73f);
+
+    private Vector3 fireworkPos = new Vector3(0, -6, -13);
+
+    private Vector3[] enemySpawnPos =
 	{
 		new Vector3(-6, 0, ENEMY_SPAWN_POS_Y),
 		new Vector3(0, 0, ENEMY_SPAWN_POS_Y),
@@ -61,12 +64,22 @@ public class GameManager : MonoBehaviour
 		new Vector3(6, 0, -PLAYER_SPAWN_POS_Y)
 	};
 
-	private int curPlayerSpawnPosIndex = 0;
+    private int curPlayerSpawnPosIndex = 0;
 	private bool playerSpawnable = false;
 	private bool isGameOver = true;
 	private int difficulty;
 	private int mode;
     private int score = 0;
+
+	public bool GameOver {
+		get {
+			return isGameOver; 
+		}
+		set
+		{
+			isGameOver = value;
+		}
+	}
 
     public int GameMode {  get { return mode; } }
 
@@ -77,16 +90,15 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
-    // Start is called before the first frame update
     void Start()
 	{
 		SetIndicator(curPlayerSpawnPosIndex);
 		gameMenuManager = GameObject.Find("GameMenuManager").GetComponent<GameMenuManager>();
     }
 
-	// Update is called once per frame
 	void Update()
 	{
+
 		DisplayScore();
         if (!isGameOver)
 		{
@@ -182,8 +194,8 @@ public class GameManager : MonoBehaviour
 				enemySpawnPos[i] + new Vector3(0, enemiesPrefabs[randomIndex].transform.position.y, 0),
 				enemiesPrefabs[randomIndex].transform.rotation);
 		}
-		Player player = GameObject.Find("Player").GetComponent<Player>();
-        player.UpdateGaugeBar(100f);
+		// Player player = GameObject.Find("Player").GetComponent<Player>();
+        //player.UpdateGaugeBar(100f);
     }
 
 	void RestartPlayerSpawn()
@@ -335,19 +347,19 @@ public class GameManager : MonoBehaviour
                 break;
 		}
 	}
-
-	public void GameOver()
-	{
-		isGameOver = true;
-	}
-
 	public void SetWinScreen()
 	{
 		gameMenuManager.SetWinScreen(true);
+		SetFirework();
 	}
 
 	public void SetGameOverMenu()
 	{
 		gameMenuManager.SetGameOverScreen(true);
 	}
+
+	private void SetFirework()
+	{
+        Instantiate(firework, fireworkPos, firework.transform.rotation);
+    }
 }

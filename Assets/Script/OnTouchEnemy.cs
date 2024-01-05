@@ -4,13 +4,12 @@ using UnityEngine;
 
 public class OnTouchEnemy : MonoBehaviour
 {
-    private Element playerElement;
+    private Element element;
 
     public GameObject playerExplosionPrefab;
-    public GameObject enemyExplosionPrefab;
-    public GameObject scorePrefab;
+    public GameObject scoreGainPrefab;
 
-    public int playerElementType;
+    public int elementType;
 
     private GameManager gameManager;
     private Player player;
@@ -20,16 +19,16 @@ public class OnTouchEnemy : MonoBehaviour
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         player = GameObject.Find("Player").GetComponent<Player>();
 
-        switch (playerElementType)
+        switch (elementType)
         {
             case Element.TYPE_FIRE:
-                playerElement = new Fire();
+                element = new Fire();
                 break;
             case Element.TYPE_WATER:
-                playerElement = new Water();
+                element = new Water();
                 break;
             case Element.TYPE_WOOD:
-                playerElement = new Wood();
+                element = new Wood();
                 break;
         }
     }
@@ -49,39 +48,27 @@ public class OnTouchEnemy : MonoBehaviour
         switch (gameManager.GameMode)
         {
             case GameManager.MODE_DEFENSE:
-
-                if (playerElement.GetTypeAdvantage(enemy.ElementType) == Element.TYPE_STRONGER)
+                if (element.GetTypeAdvantage(enemy.ElementType) != Element.TYPE_STRONGER)
                 {
-                    EnemyExplosive(enemyObj);
-                }
-                else if (playerElement.GetTypeAdvantage(enemy.ElementType) == Element.TYPE_WEAKER)
-                {
-                    PlayerExplosive();
-                }
-                else
-                {
-                    Destroy(enemyObj);
-                    PlayerExplosive();
+                    PlayerExplosion();
                 }
                 break;
 
             case GameManager.MODE_ATTACK:
-                if (playerElement.GetTypeAdvantage(enemy.ElementType) == Element.TYPE_STRONGER)
+                if (element.GetTypeAdvantage(enemy.ElementType) == Element.TYPE_STRONGER)
                 {
-                    EnemyExplosive(enemyObj);
-                    PlayerExplosive();
+                    PlayerExplosion();
                     gameManager.Score += GameManager.SCORE_GAIN_TYPE_ADVANTAGE;
                     DisplayScoreGainEffect(GameManager.SCORE_GAIN_TYPE_ADVANTAGE);
                     player.UpdateGaugeBar(15f);
                 }
-                else if (playerElement.GetTypeAdvantage(enemy.ElementType) == Element.TYPE_WEAKER)
+                else if (element.GetTypeAdvantage(enemy.ElementType) == Element.TYPE_WEAKER)
                 {
-                    PlayerExplosive();
+                    PlayerExplosion();
                 }
                 else
                 {
-                    Destroy(enemyObj);
-                    PlayerExplosive();
+                    PlayerExplosion();
                     gameManager.Score += GameManager.SCORE_GAIN_TYPE_SAME;
                     DisplayScoreGainEffect(GameManager.SCORE_GAIN_TYPE_SAME);
                 }
@@ -91,20 +78,14 @@ public class OnTouchEnemy : MonoBehaviour
 
     void DisplayScoreGainEffect(int point)
     {
-        TextMeshPro text = scorePrefab.GetComponent<TextMeshPro>();
+        TextMeshPro text = scoreGainPrefab.GetComponent<TextMeshPro>();
         text.text = "+" + point;
-        Instantiate(scorePrefab, transform.position, scorePrefab.transform.rotation);
+        Instantiate(scoreGainPrefab, transform.position, scoreGainPrefab.transform.rotation);
     }
 
-    void PlayerExplosive()
+    void PlayerExplosion()
     {
         Destroy(gameObject);
         Instantiate(playerExplosionPrefab, transform.position, playerExplosionPrefab.transform.rotation);
-    }
-
-    void EnemyExplosive(GameObject enemyObject)
-    {
-        Destroy(enemyObject);
-        Instantiate(enemyExplosionPrefab, transform.position, enemyExplosionPrefab.transform.rotation);
     }
 }

@@ -2,11 +2,13 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    [SerializeField] public float speed = 1.0f;
+    [SerializeField] private float speed = 1.0f;
     [SerializeField] private int elementType;
     [SerializeField] private float damage;
+    [SerializeField] private GameObject explosion;
 
     private GameManager gameManager;
+    private Element element;
 
     public int ElementType
     {
@@ -19,17 +21,62 @@ public class Enemy : MonoBehaviour
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         speed = gameManager.SetEnemySpeed();
+
+        switch (elementType)
+        {
+            case Element.TYPE_FIRE:
+                element = new Fire();
+                break;
+            case Element.TYPE_WATER:
+                element = new Water();
+                break;
+            case Element.TYPE_WOOD:
+                element = new Wood();
+                break;
+        }
     }
 
     // Update is called once per frame
     void Update()
-    {
+    {   
         transform.Translate(Vector3.back * Time.deltaTime * speed);
 
         if(transform.position.z < -90)
         {
             Destroy(gameObject);
         }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        GameObject otherObj = collision.gameObject;
+        if(otherObj.CompareTag("Player"))
+        {
+            var playerUnit = otherObj.GetComponent<OnTouchEnemy>();
+            if (element.GetTypeAdvantage(playerUnit.elementType) != Element.TYPE_STRONGER)
+            {
+                TriggerExplosion();
+            }
+        }
+
+        if(otherObj.CompareTag("Bullet"))
+        {
+            TriggerExplosion();
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("PlayerWall"))
+        {
+            TriggerExplosion();
+        }
+    }
+
+    public void TriggerExplosion()
+    {
+        Destroy(gameObject);
+        Instantiate(explosion, transform.position, explosion.transform.rotation);
     }
 
     public static void SetAllUnitSpeed(float speed)

@@ -6,7 +6,7 @@ public class Wall : MonoBehaviour
     const float MAX_HP = 100f;
 
     public GameObject hpBar;
-    public GameObject explositionEffect;
+    public GameObject explosion;
 
     [SerializeField] private float hp = MAX_HP;
 
@@ -26,7 +26,7 @@ public class Wall : MonoBehaviour
             switch(gameManager.GameMode)
             {
                 case GameManager.MODE_ATTACK:
-                    ProcessEnemyExplosion(other.gameObject);
+                    ProcessExplosion(other.gameObject);
                     ProcessEnemyAttack(other.gameObject);
                     UpdateHPBar();
                     if (hp <= 0)
@@ -36,17 +36,16 @@ public class Wall : MonoBehaviour
                     break;
 
                 case GameManager.MODE_DEFENSE:
-                    ProcessEnemyExplosion(other.gameObject);
+                    ProcessExplosion(other.gameObject);
                     StartCoroutine(GameOver());
                     break;
             }
         }
     }
 
-    private void ProcessEnemyExplosion(GameObject enemyObj)
+    private void ProcessExplosion(GameObject enemyObj)
     {
-        Instantiate(explositionEffect, gameObject.transform.position, explositionEffect.transform.rotation);
-        Destroy(enemyObj);
+        Instantiate(explosion, enemyObj.transform.position, explosion.transform.rotation);
     }
 
     private void ProcessEnemyAttack(GameObject enemyObj)
@@ -65,7 +64,7 @@ public class Wall : MonoBehaviour
 
     IEnumerator GameOver()
     {
-        gameManager.GameOver();
+        gameManager.GameOver = true;
         yield return new WaitForSeconds(0.5f);
         gameManager.SetGameOverMenu();
     }

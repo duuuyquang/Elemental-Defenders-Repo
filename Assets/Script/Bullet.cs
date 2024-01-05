@@ -5,10 +5,10 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     public float speed;
-    public const float DAMAGE = 3f;
+    public const float DAMAGE = 10f;
     public GameObject explosion;
 
-    private float damage = DAMAGE;
+    [SerializeField] private float damage = DAMAGE;
 
     public float Damage
     {
