@@ -125,6 +125,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 10
   explosion: {fileID: 8938211742724513895, guid: feb5c3b2c27611947ba2f0fff31d991f, type: 3}
+  scoreGainPrefab: {fileID: 6737950529974387737, guid: 0803184fbea48594aa672b24f9fb21d3, type: 3}
+  damage: 10
 --- !u!54 &602746674761788103
 Rigidbody:
   m_ObjectHideFlags: 0

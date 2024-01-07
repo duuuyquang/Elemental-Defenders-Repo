@@ -9,8 +9,8 @@ public class GameManager : MonoBehaviour
 {
 	const int ENEMY_NUM = 3;
 
-	const float ENEMY_SPAWN_POS_Y	= 12;
-	const float PLAYER_SPAWN_POS_Y	= 17;
+	const float ENEMY_SPAWN_POS_Z	= 12;
+	const float PLAYER_SPAWN_POS_Z	= 17;
 
 	const int SHIFT_PLAYER_POS_Y	= 3;
 
@@ -18,15 +18,18 @@ public class GameManager : MonoBehaviour
 	const int LEVEL_NORMAL	= 2;
 	const int LEVEL_HARD	= 3;
 
-	const float ENEMY_SPEED_EASY	= 4f;
-	const float ENEMY_SPEED_MEDIUM	= 6f;
-    const float ENEMY_SPEED_HARD	= 8f;
+	const float ENEMY_SPEED_EASY	= 3f;
+	const float ENEMY_SPEED_MEDIUM	= 5f;
+    const float ENEMY_SPEED_HARD	= 7f;
 
     public const int MODE_ATTACK	= 1;
 	public const int MODE_DEFENSE	= 2;
 
 	public const int SCORE_GAIN_TYPE_ADVANTAGE = 3;
 	public const int SCORE_GAIN_TYPE_SAME = 1;
+
+	public const float GAUGE_POINT_ADVANTAGE = 10f;
+	public const float GAUGE_POINT_SAME = 3f;
 
 	public const int SEC_COUNT_BEFORE_START = 3;
 
@@ -41,8 +44,10 @@ public class GameManager : MonoBehaviour
     public GameObject firework;
 
     public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI chainText;
 
     private GameMenuManager gameMenuManager;
+	private Player player;
 
     private Color colorEasy = new Color(0.74f, 0.7f, 0.05f);
     private Color colorNormal = new Color(1.0f, 0.64f, 0.0f);
@@ -52,16 +57,16 @@ public class GameManager : MonoBehaviour
 
     private Vector3[] enemySpawnPos =
 	{
-		new Vector3(-6, 0, ENEMY_SPAWN_POS_Y),
-		new Vector3(0, 0, ENEMY_SPAWN_POS_Y),
-		new Vector3(6, 0, ENEMY_SPAWN_POS_Y)
+		new Vector3(-6, 0, ENEMY_SPAWN_POS_Z),
+		new Vector3( 0, 0, ENEMY_SPAWN_POS_Z),
+		new Vector3( 6, 0, ENEMY_SPAWN_POS_Z)
 	};
 
 	private Vector3[] playerSpawnPos =
 	{
-		new Vector3(-6, 0, -PLAYER_SPAWN_POS_Y),
-		new Vector3(0, 0, -PLAYER_SPAWN_POS_Y),
-		new Vector3(6, 0, -PLAYER_SPAWN_POS_Y)
+		new Vector3(-6, 0, -PLAYER_SPAWN_POS_Z),
+		new Vector3(0, 0, -PLAYER_SPAWN_POS_Z),
+		new Vector3(6, 0, -PLAYER_SPAWN_POS_Z)
 	};
 
     private int curPlayerSpawnPosIndex = 0;
@@ -94,12 +99,15 @@ public class GameManager : MonoBehaviour
 	{
 		SetIndicator(curPlayerSpawnPosIndex);
 		gameMenuManager = GameObject.Find("GameMenuManager").GetComponent<GameMenuManager>();
+		player = GameObject.Find("Player").GetComponent<Player>();
+
     }
 
 	void Update()
 	{
 
 		DisplayScore();
+        DisplayChain();
         if (!isGameOver)
 		{
 			UpdateGameByMode();
@@ -112,7 +120,22 @@ public class GameManager : MonoBehaviour
 		scoreText.text = "Score: " + score;
     }
 
-	void UpdateGameByMode()
+	public void DisplayChain()
+	{
+		chainText.text = "Perfect x " + player.PerfectChain;
+    }
+
+    public void ResetChain()
+    {
+        player.PerfectChain = 0;
+    }
+
+    public void UpdatePerfectChain()
+    {
+        player.PerfectChain++;
+    }
+
+    void UpdateGameByMode()
 	{
 		int enemyNum = GameObject.FindGameObjectsWithTag("Enemy").Length;
         switch (mode)
@@ -184,19 +207,23 @@ public class GameManager : MonoBehaviour
 	void SpawnEnemy()
 	{
 		RestartPlayerSpawn();
-		for (int i = 0; i < ENEMY_NUM; i++)
-		{
-			Instantiate(enemySpawnIndicator, enemySpawnPos[i], enemySpawnIndicator.transform.rotation);
+		StartCoroutine(SpawnEnemyByDelay(0.7f));
+    }
 
-			int randomIndex = Random.Range(0, enemiesPrefabs.Length);
+	IEnumerator SpawnEnemyByDelay(float seconds)
+	{
+        for (int i = 0; i < ENEMY_NUM; i++)
+        {
+            Instantiate(enemySpawnIndicator, enemySpawnPos[i], enemySpawnIndicator.transform.rotation);
+
+            int randomIndex = Random.Range(0, enemiesPrefabs.Length);
 			Instantiate(
 				enemiesPrefabs[randomIndex],
 				enemySpawnPos[i] + new Vector3(0, enemiesPrefabs[randomIndex].transform.position.y, 0),
 				enemiesPrefabs[randomIndex].transform.rotation);
+			yield return new WaitForSeconds(seconds);
 		}
-		// Player player = GameObject.Find("Player").GetComponent<Player>();
-        //player.UpdateGaugeBar(100f);
-    }
+	}
 
 	void RestartPlayerSpawn()
 	{
@@ -237,7 +264,7 @@ public class GameManager : MonoBehaviour
 		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 	}
 
-	void SetEnemyWall()
+	void SetEnemyWall(int difficulty)
 	{
 		Color wallColor;
 		switch (difficulty)
@@ -259,12 +286,13 @@ public class GameManager : MonoBehaviour
 				wallColor = colorNormal;
 				break;
 		}
-		var main = enemyWall.transform.GetChild(0).gameObject.GetComponent<ParticleSystem>().main;
+		//var main = enemyWall.transform.GetChild(0).gameObject.GetComponent<ParticleSystem>().main;
+		var main = enemyWall.transform.GetComponentInChildren<ParticleSystem>().main;
 		main.startColor = wallColor;
 		enemyWall.SetActive(true);
 	}
 
-	public float SetEnemySpeed()
+    public float SetEnemySpeed()
 	{
 		float speed;
 		switch(difficulty)
@@ -336,13 +364,14 @@ public class GameManager : MonoBehaviour
 	{
 		switch(mode)
 		{
-			case GameManager.MODE_ATTACK:
-				playerHPBar.SetActive(true);
+			case MODE_ATTACK:
+                SetEnemyWall(LEVEL_HARD); // hard set position to furtest
+                playerHPBar.SetActive(true);
 				enemyHPBar.SetActive(true);
                 ingameInstruction.SetActive(true);
 				break;
-			case GameManager.MODE_DEFENSE:
-				SetEnemyWall();
+			case MODE_DEFENSE:
+				SetEnemyWall(difficulty);
                 ingameInstruction.SetActive(true);
                 break;
 		}
@@ -361,5 +390,17 @@ public class GameManager : MonoBehaviour
 	private void SetFirework()
 	{
         Instantiate(firework, fireworkPos, firework.transform.rotation);
+    }
+
+    public int ConvertChainToScore(int perfectChain)
+    {
+        int firstIndex = perfectChain / 10;
+        int secondIndex = perfectChain % 10;
+
+        int baseScore = SCORE_GAIN_TYPE_ADVANTAGE * perfectChain;
+
+		int score = (int)Mathf.Ceil(baseScore * (1.0f + 0.1f * (firstIndex + secondIndex)));
+
+		return score;
     }
 }

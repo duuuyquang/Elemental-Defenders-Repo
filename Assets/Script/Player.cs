@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -10,8 +9,9 @@ public class Player : MonoBehaviour
     public GameObject maxGaugeEffect;
     public GameObject gaugeExplosion;
 
-    private float curGauge;
     private float initialGaugeScale = 1f;
+    private float curGauge = 0f;
+    private int perfectChain = 0;
 
     private GameObject curGaugeBar;
 
@@ -20,11 +20,15 @@ public class Player : MonoBehaviour
         set { curGauge = Mathf.Min(MAX_GAUGE, Mathf.Max(value, 0)); }
     }
 
+    public int PerfectChain {
+        get { return perfectChain; }
+        set { perfectChain = Mathf.Max(value, 0); }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
         curGaugeBar = GameObject.Find("curGauge");
-        curGauge = 0;
     }
 
     // Update is called once per frame
@@ -39,29 +43,15 @@ public class Player : MonoBehaviour
 
     private void ProcessAttackEnemy()
     {
-        Enemy.SetAllUnitSpeed(-1.0f);
-        //StartCoroutine(SpamBullet());
+        Enemy.SetAllUnitSpeed(-Bullet.PUSH_BACK_SPEED);
         ShootBullet();
-    }
-
-    IEnumerator SpamBullet()
-    {
-        int count = 0;
-        while(count < 5)
-        {
-            Instantiate(bullet, new Vector3(-5, 1, -20), bullet.transform.rotation);
-            Instantiate(bullet, new Vector3(0, 1, -19), bullet.transform.rotation);
-            Instantiate(bullet, new Vector3(5, 1, -20), bullet.transform.rotation);
-            yield return new WaitForSeconds(0.2f);
-            count++;
-        }
     }
 
     private void ShootBullet()
     {
-        Instantiate(bullet, new Vector3(-5, 1, -20), bullet.transform.rotation);
+        Instantiate(bullet, new Vector3(-5, 1, -21), bullet.transform.rotation);
         Instantiate(bullet, new Vector3(0, 1, -19), bullet.transform.rotation);
-        Instantiate(bullet, new Vector3(5, 1, -20), bullet.transform.rotation);
+        Instantiate(bullet, new Vector3(5, 1, -21), bullet.transform.rotation);
     }
 
     private bool IsAttackable()

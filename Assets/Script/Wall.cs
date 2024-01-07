@@ -11,11 +11,13 @@ public class Wall : MonoBehaviour
     [SerializeField] private float hp = MAX_HP;
 
     private GameManager gameManager;
+    private Player player;
     private float initialHPScale;
 
     void Start()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        player = GameObject.Find("Player").GetComponent<Player>();
         initialHPScale = hpBar.transform.localScale.x;
     }
 
@@ -29,12 +31,13 @@ public class Wall : MonoBehaviour
                     ProcessExplosion(other.gameObject);
                     ProcessEnemyAttack(other.gameObject);
                     UpdateHPBar();
+                    player.PerfectChain = 0;
+                    player.UpdateGaugeBar(0);
                     if (hp <= 0)
                     {
                         StartCoroutine(GameOver());
                     }
                     break;
-
                 case GameManager.MODE_DEFENSE:
                     ProcessExplosion(other.gameObject);
                     StartCoroutine(GameOver());

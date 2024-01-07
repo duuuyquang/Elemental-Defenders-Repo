@@ -56,6 +56,9 @@ public class Enemy : MonoBehaviour
             if (element.GetTypeAdvantage(playerUnit.elementType) != Element.TYPE_STRONGER)
             {
                 TriggerExplosion();
+            } else
+            {
+                speed = 13f; // to rush end the wave
             }
         }
 

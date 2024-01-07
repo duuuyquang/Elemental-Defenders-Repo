@@ -33,6 +33,11 @@ public class OnTouchEnemy : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        transform.Translate(Vector3.forward * Time.deltaTime * 10);
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.transform.CompareTag("Enemy"))
@@ -59,24 +64,34 @@ public class OnTouchEnemy : MonoBehaviour
                 {
                     PlayerExplosion();
                     gameManager.Score += GameManager.SCORE_GAIN_TYPE_ADVANTAGE;
-                    DisplayScoreGainEffect(GameManager.SCORE_GAIN_TYPE_ADVANTAGE);
-                    player.UpdateGaugeBar(15f);
+                    DisplayScoreGain(GameManager.SCORE_GAIN_TYPE_ADVANTAGE);
+                    SetPlayerGauge(GameManager.GAUGE_POINT_ADVANTAGE);
+                    player.PerfectChain++;
                 }
                 else if (element.GetTypeAdvantage(enemy.ElementType) == Element.TYPE_WEAKER)
                 {
+                    player.PerfectChain = 0;
                     PlayerExplosion();
                 }
                 else
                 {
                     PlayerExplosion();
                     gameManager.Score += GameManager.SCORE_GAIN_TYPE_SAME;
-                    DisplayScoreGainEffect(GameManager.SCORE_GAIN_TYPE_SAME);
+                    player.PerfectChain = 0;
+                    DisplayScoreGain(GameManager.SCORE_GAIN_TYPE_SAME);
+                    SetPlayerGauge(GameManager.GAUGE_POINT_SAME);
                 }
                 break;
         }
     }
 
-    void DisplayScoreGainEffect(int point)
+    void SetPlayerGauge(float value)
+    {
+        player.CurGauge += value;
+        player.UpdateGaugeBar(player.CurGauge);
+    }
+
+    void DisplayScoreGain(int point)
     {
         TextMeshPro text = scoreGainPrefab.GetComponent<TextMeshPro>();
         text.text = "+" + point;
