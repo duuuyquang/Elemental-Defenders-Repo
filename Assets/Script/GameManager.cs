@@ -532,7 +532,7 @@ public class GameManager : MonoBehaviour
     {
         int firstIndex = perfectChain / 10;
         int secondIndex = perfectChain % 10;
-		if(secondIndex == 0)
+		if(firstIndex > 0)
 		{
 			firstIndex *= 10;
         }
