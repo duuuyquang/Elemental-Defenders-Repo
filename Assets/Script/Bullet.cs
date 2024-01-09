@@ -42,8 +42,7 @@ public class Bullet : MonoBehaviour
             if(player.PerfectChain > 0)
             {
                 int score = gameManager.ConvertChainToScore(player.PerfectChain);
-                player.PerfectChain = 0;
-                gameManager.DisplayCombo();
+                gameManager.DisplayCombo(0);
                 gameManager.Score += score;
                 DisplayScoreGain(score);
             }

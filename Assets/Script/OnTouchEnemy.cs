@@ -72,21 +72,18 @@ public class OnTouchEnemy : MonoBehaviour
                     gameManager.Score += GameManager.SCORE_GAIN_TYPE_ADVANTAGE + bonusScore;
                     DisplayAllScoresGained(GameManager.SCORE_GAIN_TYPE_ADVANTAGE);
                     SetPlayerGauge(GameManager.GAUGE_POINT_ADVANTAGE);
-                    player.PerfectChain++;
-                    gameManager.DisplayCombo();
+                    gameManager.DisplayCombo(++player.PerfectChain);
                 }
                 else if (element.GetTypeAdvantage(enemyEleType) == Element.TYPE_WEAKER)
                 {
-                    player.PerfectChain = 0;
-                    gameManager.DisplayCombo();
+                    gameManager.DisplayCombo(0);
                 }
                 else
                 {
                     gameManager.Score += GameManager.SCORE_GAIN_TYPE_SAME + bonusScore;
                     DisplayAllScoresGained(GameManager.SCORE_GAIN_TYPE_SAME);
                     SetPlayerGauge(GameManager.GAUGE_POINT_SAME);
-                    player.PerfectChain = 0;
-                    gameManager.DisplayCombo();
+                    gameManager.DisplayCombo(0);
                 }
                 TriggerExplosion();
                 break;

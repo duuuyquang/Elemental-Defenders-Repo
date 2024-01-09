@@ -162,27 +162,28 @@ public class GameManager : MonoBehaviour
 		scoreText.text = "Score: " + score;
     }
 
-	public void DisplayCombo()
+	public void DisplayCombo(int combo)
 	{
-		if(player.PerfectChain <= 10)
+		player.PerfectChain = combo;
+        if (combo <= 10)
 		{
-			if(player.PerfectChain < 1)
+			if(combo < 1)
 			{
 				chainText.fontSize = 20;
 				chainText.color = Color.white;
                 chainText.text = "";
-                DisplayComboScore();
+                DisplayComboScore(0);
 				return;
             }
-			else if(player.PerfectChain < 4)
+			else if(combo < 4)
 			{
 				chainText.color = Color.cyan;
 			} 
-			else if(player.PerfectChain < 7)
+			else if(combo < 7)
 			{
 				chainText.color = Color.yellow;
 			} 
-			else if(player.PerfectChain < 10)
+			else if(combo < 10)
 			{
                 chainText.color = Color.green;
             } 
@@ -192,15 +193,14 @@ public class GameManager : MonoBehaviour
 			}
             chainText.fontSize += 2;
         }
-		chainText.text = "Combo x" + player.PerfectChain;
-		DisplayComboScore();
+		chainText.text = "Combo x" + combo;
+		DisplayComboScore(combo);
     }
 
-	public void DisplayComboScore()
+	public void DisplayComboScore(int chain)
 	{
-		string displayText = "";
-        int score = ConvertChainToScore(player.PerfectChain);
-        displayText = "+" + score;
+        int score = ConvertChainToScore(chain);
+        string displayText = "+" + score;
 
 		chainScoreText.text = displayText;
         chainScoreText.color = Color.green;

@@ -31,7 +31,7 @@ public class Wall : MonoBehaviour
                     ProcessExplosion(other.gameObject);
                     ProcessEnemyAttack(other.gameObject);
                     UpdateHPBar();
-                    player.PerfectChain = 0;
+                    gameManager.DisplayCombo(0);
                     player.UpdateGaugeBar(0);
                     if (hp <= 0)
                     {
