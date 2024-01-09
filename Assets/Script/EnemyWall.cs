@@ -39,11 +39,17 @@ public class EnemyWall : MonoBehaviour
                     if (hp <= 0)
                     {
                         StartCoroutine(GameOver());
-                    } 
+                    }
                     else
                     {
-                        Enemy.SetAllUnitSpeed(gameManager.SetEnemySpeed());
+                        Enemy.SetAllUnitSpeed(gameManager.GetEnemySpeed());
                     }
+                }
+
+                if (otherObj.CompareTag("Player"))
+                {
+                    ProcessExplosion(otherObj);
+                    Destroy(otherObj);
                 }
                 break;
 
@@ -58,7 +64,7 @@ public class EnemyWall : MonoBehaviour
 
     IEnumerator GameOver()
     {
-        clearAllEnemyUnit();
+        Enemy.ClearAllEnemyUnit();
         gameManager.GameOver = true;
         yield return new WaitForSeconds(1);
         gameManager.SetWinScreen();
@@ -67,15 +73,6 @@ public class EnemyWall : MonoBehaviour
     private void ProcessExplosion(GameObject other)
     {
         Instantiate(explosition, other.transform.position, explosition.transform.rotation);
-    }
-
-    private void clearAllEnemyUnit() {
-        GameObject[] enemyObjects = GameObject.FindGameObjectsWithTag("Enemy");
-        foreach (GameObject enemyObject in enemyObjects)
-        {
-            var enemyUnit = enemyObject.GetComponent<Enemy>();
-            enemyUnit.TriggerExplosion();
-        }
     }
 
     private void UpdateHPBar()

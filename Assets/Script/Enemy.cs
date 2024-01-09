@@ -20,7 +20,7 @@ public class Enemy : MonoBehaviour
     void Start()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        speed = gameManager.SetEnemySpeed();
+        speed = gameManager.GetEnemySpeed();
 
         switch (elementType)
         {
@@ -92,6 +92,16 @@ public class Enemy : MonoBehaviour
                 Enemy enemy = enemyObj.GetComponent<Enemy>();
                 enemy.speed = speed;
             }
+        }
+    }
+
+    public static void ClearAllEnemyUnit()
+    {
+        GameObject[] enemyObjects = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject enemyObject in enemyObjects)
+        {
+            var enemyUnit = enemyObject.GetComponent<Enemy>();
+            enemyUnit.TriggerExplosion();
         }
     }
 }

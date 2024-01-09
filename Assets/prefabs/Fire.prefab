@@ -148,8 +148,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9ecff32cf082114399dd470e19dbb83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  speed: 10
   playerExplosionPrefab: {fileID: 2948973399162377655, guid: 4ff155ac13bf9784bb37ff8a4cbcc100, type: 3}
   scoreGainPrefab: {fileID: 6737950529974387737, guid: 0803184fbea48594aa672b24f9fb21d3, type: 3}
+  bonusGainPrefab: {fileID: 8711679641317155397, guid: 73d4a17f5ca2ec744bfbf96c464bb24a, type: 3}
   elementType: 1
 --- !u!1001 &724905905073204817
 PrefabInstance:

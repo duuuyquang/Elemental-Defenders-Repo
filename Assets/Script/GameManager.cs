@@ -19,10 +19,16 @@ public class GameManager : MonoBehaviour
 	const int LEVEL_HARD	= 3;
 
 	const float ENEMY_SPEED_EASY	= 3f;
-	const float ENEMY_SPEED_MEDIUM	= 5f;
-    const float ENEMY_SPEED_HARD	= 7f;
+	const float ENEMY_SPEED_MEDIUM	= 6f;
+    const float ENEMY_SPEED_HARD	= 9f;
 
-    public const int MODE_ATTACK	= 1;
+	const float ENEMY_SPAWN_DELAY_SEC = 0.4f;
+    const int SEC_COUNT_BEFORE_START = 3;
+
+	const int TIME_LIMIT_SEC = 10;
+	const int TIMER_DEFAULT_VALUE = -2;
+
+	public const int MODE_ATTACK	= 1;
 	public const int MODE_DEFENSE	= 2;
 
 	public const int SCORE_GAIN_TYPE_ADVANTAGE = 3;
@@ -31,12 +37,9 @@ public class GameManager : MonoBehaviour
 	public const float GAUGE_POINT_ADVANTAGE = 10f;
 	public const float GAUGE_POINT_SAME = 3f;
 
-	public const int SEC_COUNT_BEFORE_START = 3;
-
 	public GameObject[] enemiesPrefabs;
 	public GameObject[] playerPrefabs;
 	public GameObject indicator;
-	public GameObject enemySpawnIndicator;
 	public GameObject enemyWall;
 	public GameObject ingameInstruction;
 	public GameObject playerHPBar;
@@ -48,10 +51,11 @@ public class GameManager : MonoBehaviour
 
     private GameMenuManager gameMenuManager;
 	private Player player;
+	private BonusGauge bonusGauge;
 
-    private Color colorEasy = new Color(0.74f, 0.7f, 0.05f);
-    private Color colorNormal = new Color(1.0f, 0.64f, 0.0f);
-    private Color colorHard = new Color(0.52f, 0.0f, 0.73f);
+    private Color colorEasy		= new Color(0.74f, 0.7f, 0.05f);
+    private Color colorNormal	= new Color(1.0f, 0.64f, 0.0f);
+    private Color colorHard		= new Color(0.52f, 0.0f, 0.73f);
 
     private Vector3 fireworkPos = new Vector3(0, -6, -13);
 
@@ -75,6 +79,9 @@ public class GameManager : MonoBehaviour
 	private int difficulty;
 	private int mode;
     private int score = 0;
+	private int timer;
+
+	public TextMeshProUGUI timeText;
 
 	public bool GameOver {
 		get {
@@ -95,23 +102,51 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
-    void Start()
+	void Start()
 	{
-		SetIndicator(curPlayerSpawnPosIndex);
-		gameMenuManager = GameObject.Find("GameMenuManager").GetComponent<GameMenuManager>();
+        gameMenuManager = GameObject.Find("GameMenuManager").GetComponent<GameMenuManager>();
 		player = GameObject.Find("Player").GetComponent<Player>();
-
+		timer = TIMER_DEFAULT_VALUE;
     }
 
-	void Update()
-	{
+    private void DisplayTimeText()
+    {
+        if(timer >= 0)
+		{
+			timeText.text = "Time: " + timer;
+		}
+    }
 
+    void TimerColdown()
+	{
+		timer--;
+		if(timer < 0)
+		{
+            isGameOver = true;
+			SetGameOverMenu();
+			Enemy.ClearAllEnemyUnit();
+			CancelInvoke();
+        }
+    }
+
+	void TimeCounter()
+	{
+		timer++;
+        if (isGameOver)
+        {
+            CancelInvoke();
+        }
+    }
+
+    void Update()
+	{
 		DisplayScore();
         DisplayChain();
+		DisplayTimeText();
         if (!isGameOver)
 		{
 			UpdateGameByMode();
-            HandlelayerInput();
+            HandlePlayerInput();
         }
 	}
 
@@ -134,6 +169,18 @@ public class GameManager : MonoBehaviour
     {
         player.PerfectChain++;
     }
+	
+	private void StartTimeColdown()
+	{
+        timer = TIME_LIMIT_SEC;
+        InvokeRepeating("TimerColdown", 1, 1);
+    }
+
+	private void StartTimeCounter()
+	{
+        timer = 0;
+        InvokeRepeating("TimeCounter", 1, 1);
+    }
 
     void UpdateGameByMode()
 	{
@@ -141,15 +188,21 @@ public class GameManager : MonoBehaviour
         switch (mode)
 		{
 			case MODE_ATTACK:
-				if (enemyNum <= 0)
+				if (timer == TIMER_DEFAULT_VALUE)
 				{
-					SpawnEnemy();
-				}
-                break;
+                    StartTimeColdown();
+                }
+                if (enemyNum <= 0)
+				{
+					RestartPlayerSpawn();
+                    SpawnEnemy();
+                }
+				break;
 			case MODE_DEFENSE:
 				if (enemyNum <= 0)
 				{
-					SpawnEnemy();
+                    RestartPlayerSpawn();
+                    SpawnEnemy();
 					ShiftPlayerPos();
 				}
                 break;
@@ -158,23 +211,23 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
-    void HandlelayerInput()
+    void HandlePlayerInput()
     {
         if (Input.GetKeyDown(KeyCode.Q))
-        {
-            SpawnElement(Element.TYPE_FIRE);
-            SetIndicator(curPlayerSpawnPosIndex);
+		{
+			SpawnElement(Element.TYPE_FIRE);
+			SetIndicator(curPlayerSpawnPosIndex);
         }
 
         if (Input.GetKeyDown(KeyCode.W))
-        {
-            SpawnElement(Element.TYPE_WATER);
+		{
+			SpawnElement(Element.TYPE_WATER);
             SetIndicator(curPlayerSpawnPosIndex);
         }
 
         if (Input.GetKeyDown(KeyCode.E))
-        {
-            SpawnElement(Element.TYPE_WOOD);
+		{
+			SpawnElement(Element.TYPE_WOOD);
             SetIndicator(curPlayerSpawnPosIndex);
         }
     }
@@ -183,39 +236,71 @@ public class GameManager : MonoBehaviour
 	{
 		if (playerSpawnable)
 		{
-			Instantiate(
+            playerPrefabs[type].GetComponent<OnTouchEnemy>().bonusScore = bonusGauge.CurBonus;
+            Instantiate(
 				playerPrefabs[type],
 				playerSpawnPos[curPlayerSpawnPosIndex] + new Vector3(0, playerPrefabs[type].transform.position.y, 0),
 				playerPrefabs[type].transform.rotation);
-			curPlayerSpawnPosIndex++;
+            curPlayerSpawnPosIndex++;
 			if (curPlayerSpawnPosIndex > 2)
 			{
 				playerSpawnable = false;
 				indicator.SetActive(false);
-			}
-		}
+            }
+        }
 	}
 
 	void SetIndicator(int index)
 	{
-		if(curPlayerSpawnPosIndex <= 2)
+		switch(mode)
 		{
-			indicator.transform.position = playerSpawnPos[index];
+			case MODE_ATTACK:
+                if (!bonusGauge)
+                {
+                    bonusGauge = GameObject.Find("BonusGauge").GetComponent<BonusGauge>();
+                }
+
+                if (curPlayerSpawnPosIndex <= 2)
+                {
+                    indicator.transform.position = playerSpawnPos[index];
+                    bonusGauge.RegenGaugeByPercentage(ENEMY_SPAWN_DELAY_SEC * 10);
+                }
+
+                if (index == 0)
+                {
+                    bonusGauge.ResetGauge();
+                }
+				break;
+			case MODE_DEFENSE:
+                if (!bonusGauge)
+                {
+                    bonusGauge = GameObject.Find("BonusGauge").GetComponent<BonusGauge>();
+                }
+
+                if (curPlayerSpawnPosIndex <= 2)
+                {
+                    indicator.transform.position = playerSpawnPos[index];
+                    bonusGauge.RegenGaugeByPercentage(ENEMY_SPAWN_DELAY_SEC * 10);
+                }
+
+                if (index == 0)
+                {
+                    bonusGauge.ResetGauge();
+                }
+                break;
 		}
 	}
 
 	void SpawnEnemy()
 	{
-		RestartPlayerSpawn();
-		StartCoroutine(SpawnEnemyByDelay(0.7f));
+        indicator.SetActive(true);
+        StartCoroutine(SpawnEnemyByDelay(ENEMY_SPAWN_DELAY_SEC));
     }
 
 	IEnumerator SpawnEnemyByDelay(float seconds)
 	{
         for (int i = 0; i < ENEMY_NUM; i++)
         {
-            Instantiate(enemySpawnIndicator, enemySpawnPos[i], enemySpawnIndicator.transform.rotation);
-
             int randomIndex = Random.Range(0, enemiesPrefabs.Length);
 			Instantiate(
 				enemiesPrefabs[randomIndex],
@@ -230,7 +315,6 @@ public class GameManager : MonoBehaviour
         curPlayerSpawnPosIndex = 0;
         SetIndicator(curPlayerSpawnPosIndex);
         playerSpawnable = true;
-        indicator.SetActive(true);
     }
 
 	void ShiftPlayerPos()
@@ -238,7 +322,6 @@ public class GameManager : MonoBehaviour
 		GameObject[] curPlayerElements = GameObject.FindGameObjectsWithTag("Player");
 		foreach(GameObject curPlayerElement in curPlayerElements)
 		{
-			//curPlayerElement.transform.position += new Vector3(0, 0, SHIFT_PLAYER_POS_Y);
 			StartCoroutine(MovePlayerUnitForward(curPlayerElement));
 		}
 	}
@@ -264,35 +347,43 @@ public class GameManager : MonoBehaviour
 		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 	}
 
-	void SetEnemyWall(int difficulty)
+	void SetEnemyWall()
 	{
-		Color wallColor;
-		switch (difficulty)
+		if(mode == MODE_DEFENSE)
 		{
-			case LEVEL_EASY:
-				enemyWall.transform.position = new Vector3(0, 0, -SHIFT_PLAYER_POS_Y * 2);
-				wallColor = colorEasy;
-				break;
-			case LEVEL_NORMAL:
-				enemyWall.transform.position = new Vector3(0, 0, 0);
-				wallColor = colorNormal;
-				break;
-			case LEVEL_HARD:
-				enemyWall.transform.position = new Vector3(0, 0, SHIFT_PLAYER_POS_Y * 2);
-				wallColor = colorHard;
-				break;
-			default:
-				enemyWall.transform.position = new Vector3(0, 0, 0);
-				wallColor = colorNormal;
-				break;
-		}
-		//var main = enemyWall.transform.GetChild(0).gameObject.GetComponent<ParticleSystem>().main;
-		var main = enemyWall.transform.GetComponentInChildren<ParticleSystem>().main;
-		main.startColor = wallColor;
-		enemyWall.SetActive(true);
-	}
+            Color wallColor;
+            switch (difficulty)
+            {
+                case LEVEL_EASY:
+                    enemyWall.transform.position = new Vector3(0, 0, -SHIFT_PLAYER_POS_Y * 2);
+                    wallColor = colorEasy;
+                    break;
+                case LEVEL_NORMAL:
+                    enemyWall.transform.position = new Vector3(0, 0, 0);
+                    wallColor = colorNormal;
+                    break;
+                case LEVEL_HARD:
+                    enemyWall.transform.position = new Vector3(0, 0, SHIFT_PLAYER_POS_Y * 2);
+                    wallColor = colorHard;
+                    break;
+                default:
+                    enemyWall.transform.position = new Vector3(0, 0, 0);
+                    wallColor = colorNormal;
+                    break;
+            }
+            var main = enemyWall.transform.GetComponentInChildren<ParticleSystem>().main;
+            main.startColor = wallColor;
+        }
+		else if( mode == MODE_ATTACK)
+		{
+            enemyWall.transform.position = new Vector3(0, 0, 6);
+            var main = enemyWall.transform.GetComponentInChildren<ParticleSystem>().main;
+            main.startColor = colorHard;
+        }
+        enemyWall.SetActive(true);
+    }
 
-    public float SetEnemySpeed()
+    public float GetEnemySpeed()
 	{
 		float speed;
 		switch(difficulty)
@@ -365,13 +456,15 @@ public class GameManager : MonoBehaviour
 		switch(mode)
 		{
 			case MODE_ATTACK:
-                SetEnemyWall(LEVEL_HARD); // hard set position to furtest
+                SetEnemyWall();
                 playerHPBar.SetActive(true);
 				enemyHPBar.SetActive(true);
+                indicator.SetActive(true);
                 ingameInstruction.SetActive(true);
 				break;
 			case MODE_DEFENSE:
-				SetEnemyWall(difficulty);
+				SetEnemyWall();
+                indicator.SetActive(true);
                 ingameInstruction.SetActive(true);
                 break;
 		}

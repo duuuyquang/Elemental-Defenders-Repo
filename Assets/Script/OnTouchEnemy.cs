@@ -1,13 +1,18 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class OnTouchEnemy : MonoBehaviour
 {
     private Element element;
 
+    [SerializeField] private float speed = 10f;
+
     public GameObject playerExplosionPrefab;
     public GameObject scoreGainPrefab;
+    public GameObject bonusGainPrefab;
+    public int bonusScore;
 
     public int elementType;
 
@@ -35,7 +40,10 @@ public class OnTouchEnemy : MonoBehaviour
 
     private void Update()
     {
-        transform.Translate(Vector3.forward * Time.deltaTime * 10);
+        if(gameManager.GameMode == GameManager.MODE_ATTACK)
+        {
+            transform.Translate(Vector3.forward * Time.deltaTime * speed);
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -62,25 +70,23 @@ public class OnTouchEnemy : MonoBehaviour
             case GameManager.MODE_ATTACK:
                 if (element.GetTypeAdvantage(enemy.ElementType) == Element.TYPE_STRONGER)
                 {
-                    PlayerExplosion();
-                    gameManager.Score += GameManager.SCORE_GAIN_TYPE_ADVANTAGE;
-                    DisplayScoreGain(GameManager.SCORE_GAIN_TYPE_ADVANTAGE);
+                    gameManager.Score += GameManager.SCORE_GAIN_TYPE_ADVANTAGE + bonusScore;
+                    DisplayAllScoresGained(GameManager.SCORE_GAIN_TYPE_ADVANTAGE);
                     SetPlayerGauge(GameManager.GAUGE_POINT_ADVANTAGE);
                     player.PerfectChain++;
                 }
                 else if (element.GetTypeAdvantage(enemy.ElementType) == Element.TYPE_WEAKER)
                 {
                     player.PerfectChain = 0;
-                    PlayerExplosion();
                 }
                 else
                 {
-                    PlayerExplosion();
-                    gameManager.Score += GameManager.SCORE_GAIN_TYPE_SAME;
-                    player.PerfectChain = 0;
-                    DisplayScoreGain(GameManager.SCORE_GAIN_TYPE_SAME);
+                    gameManager.Score += GameManager.SCORE_GAIN_TYPE_SAME + bonusScore;
+                    DisplayAllScoresGained(GameManager.SCORE_GAIN_TYPE_SAME);
                     SetPlayerGauge(GameManager.GAUGE_POINT_SAME);
+                    player.PerfectChain = 0;
                 }
+                PlayerExplosion();
                 break;
         }
     }
@@ -91,11 +97,27 @@ public class OnTouchEnemy : MonoBehaviour
         player.UpdateGaugeBar(player.CurGauge);
     }
 
+    void DisplayAllScoresGained(int score)
+    {
+        if (bonusScore > 0)
+        {
+            DisplayBonusGain(bonusScore);
+        }
+        DisplayScoreGain(score);
+    }
+
     void DisplayScoreGain(int point)
     {
         TextMeshPro text = scoreGainPrefab.GetComponent<TextMeshPro>();
         text.text = "+" + point;
         Instantiate(scoreGainPrefab, transform.position, scoreGainPrefab.transform.rotation);
+    }
+    void DisplayBonusGain(int point)
+    {
+        TextMeshPro text = bonusGainPrefab.GetComponent<TextMeshPro>();
+        text.text = "+" + point;
+        text.color = BonusGauge.GetColorByScore(point);
+        Instantiate(bonusGainPrefab, transform.position + new Vector3(0,1,0), bonusGainPrefab.transform.rotation);
     }
 
     void PlayerExplosion()

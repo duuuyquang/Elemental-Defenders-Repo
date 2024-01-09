@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class ScoreGain : MonoBehaviour
 {
+
+    public int speed;
     // Start is called before the first frame update
     void Start()
     {
@@ -19,6 +21,6 @@ public class ScoreGain : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.Translate(Vector3.up * Time.deltaTime * 6);
+        transform.Translate(Vector3.up * Time.deltaTime * speed);
     }
 }
