@@ -37,7 +37,6 @@ public class Player : MonoBehaviour
 
     private void ProcessAttackEnemy()
     {
-        Enemy.SetAllUnitSpeed(-Bullet.PUSH_BACK_SPEED);
         ShootBullet();
     }
 
@@ -82,7 +81,7 @@ public class Player : MonoBehaviour
         float upf = 1f;
         while (count >= 0)
         {
-            if(count % 50 == 0)
+            if(count % 30 == 0)
             {
                 Instantiate(gaugeExplosion, curGaugeBar.transform.position, gaugeExplosion.transform.rotation);
             }

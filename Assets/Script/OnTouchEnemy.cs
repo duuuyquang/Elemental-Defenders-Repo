@@ -1,8 +1,5 @@
-using System.Collections;
-using System.ComponentModel;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
 
 public class OnTouchEnemy : MonoBehaviour
 {
@@ -76,10 +73,12 @@ public class OnTouchEnemy : MonoBehaviour
                     DisplayAllScoresGained(GameManager.SCORE_GAIN_TYPE_ADVANTAGE);
                     SetPlayerGauge(GameManager.GAUGE_POINT_ADVANTAGE);
                     player.PerfectChain++;
+                    gameManager.DisplayCombo();
                 }
                 else if (element.GetTypeAdvantage(enemyEleType) == Element.TYPE_WEAKER)
                 {
                     player.PerfectChain = 0;
+                    gameManager.DisplayCombo();
                 }
                 else
                 {
@@ -87,6 +86,7 @@ public class OnTouchEnemy : MonoBehaviour
                     DisplayAllScoresGained(GameManager.SCORE_GAIN_TYPE_SAME);
                     SetPlayerGauge(GameManager.GAUGE_POINT_SAME);
                     player.PerfectChain = 0;
+                    gameManager.DisplayCombo();
                 }
                 TriggerExplosion();
                 break;

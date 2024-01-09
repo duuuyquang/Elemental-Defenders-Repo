@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
 
 public class Bullet : MonoBehaviour
 {
@@ -15,8 +12,6 @@ public class Bullet : MonoBehaviour
     private Player player;
 
     [SerializeField] private float damage = DAMAGE;
-
-    public const float PUSH_BACK_SPEED = 1f; 
 
     public float Damage
     {
@@ -48,6 +43,7 @@ public class Bullet : MonoBehaviour
             {
                 int score = gameManager.ConvertChainToScore(player.PerfectChain);
                 player.PerfectChain = 0;
+                gameManager.DisplayCombo();
                 gameManager.Score += score;
                 DisplayScoreGain(score);
             }

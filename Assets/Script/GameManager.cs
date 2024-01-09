@@ -50,7 +50,8 @@ public class GameManager : MonoBehaviour
 	public GameObject gaugeInfo;
 
     public TextMeshProUGUI scoreText;
-    public TextMeshProUGUI chainText;
+	public TextMeshProUGUI chainText;
+	public TextMeshProUGUI chainScoreText;
 
     private GameMenuManager gameMenuManager;
 	private Player player;
@@ -117,7 +118,6 @@ public class GameManager : MonoBehaviour
         if (GameMode == MODE_ATTACK)
         {
             DisplayScore();
-            DisplayChain();
             DisplayTimeText();
         }
 
@@ -126,15 +126,6 @@ public class GameManager : MonoBehaviour
             UpdateGameByMode();
             HandlePlayerInput();
         }
-    }
-
-    void PauseGame()
-    {
-        Time.timeScale = 0;
-    }
-    void ResumeGame()
-    {
-        Time.timeScale = 1;
     }
 
     private void DisplayTimeText()
@@ -171,9 +162,49 @@ public class GameManager : MonoBehaviour
 		scoreText.text = "Score: " + score;
     }
 
-	public void DisplayChain()
+	public void DisplayCombo()
 	{
-		chainText.text = "Perfect x " + player.PerfectChain;
+		if(player.PerfectChain <= 10)
+		{
+			if(player.PerfectChain < 1)
+			{
+				chainText.fontSize = 20;
+				chainText.color = Color.white;
+                chainText.text = "";
+                DisplayComboScore();
+				return;
+            }
+			else if(player.PerfectChain < 4)
+			{
+				chainText.color = Color.cyan;
+			} 
+			else if(player.PerfectChain < 7)
+			{
+				chainText.color = Color.yellow;
+			} 
+			else if(player.PerfectChain < 10)
+			{
+                chainText.color = Color.green;
+            } 
+			else
+			{
+				chainText.color = Color.red;
+			}
+            chainText.fontSize += 2;
+        }
+		chainText.text = "Combo x" + player.PerfectChain;
+		DisplayComboScore();
+    }
+
+	public void DisplayComboScore()
+	{
+		string displayText = "";
+        int score = ConvertChainToScore(player.PerfectChain);
+        displayText = "+" + score;
+
+		chainScoreText.text = displayText;
+        chainScoreText.color = Color.green;
+
     }
 
     public void ResetChain()
@@ -501,6 +532,10 @@ public class GameManager : MonoBehaviour
     {
         int firstIndex = perfectChain / 10;
         int secondIndex = perfectChain % 10;
+		if(secondIndex == 0)
+		{
+			firstIndex *= 10;
+        }
 
         int baseScore = SCORE_GAIN_TYPE_ADVANTAGE * perfectChain;
 
