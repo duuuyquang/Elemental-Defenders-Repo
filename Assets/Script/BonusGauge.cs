@@ -31,8 +31,14 @@ public class BonusGauge : MonoBehaviour
     {
         transform.localScale = new Vector3(initialScaleX, 0.2f, 1);
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        float enemySpeed = gameManager.GetEnemySpeed();
 
+        if(gameManager.GameMode == GameManager.MODE_DEFENSE)
+        {
+            gameObject.SetActive(false);
+            return;
+        }
+
+        float enemySpeed = gameManager.GetEnemySpeed();
         GameObject enemyWall = GameObject.Find("EnemyWallInfo");
         GameObject playerWall = GameObject.Find("PlayerWallInfo");
         float distance = (enemyWall.transform.position.z - playerWall.transform.position.z);

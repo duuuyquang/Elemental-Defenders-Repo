@@ -52,11 +52,13 @@ public class Enemy : MonoBehaviour
         GameObject otherObj = collision.gameObject;
         if(otherObj.CompareTag("Player"))
         {
-            var playerUnit = otherObj.GetComponent<OnTouchEnemy>();
-            if (element.GetTypeAdvantage(playerUnit.elementType) != Element.TYPE_STRONGER)
+            OnTouchEnemy playerUnit = otherObj.GetComponent<OnTouchEnemy>();
+            int playerEleType = playerUnit.elementType;
+            if ( element.GetTypeAdvantage(playerEleType) != Element.TYPE_STRONGER)
             {
                 TriggerExplosion();
-            } else
+            }
+            else
             {
                 speed = 13f; // to rush end the wave
             }

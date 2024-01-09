@@ -1,4 +1,5 @@
 using System.Collections;
+using System.ComponentModel;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SocialPlatforms.Impl;
@@ -58,24 +59,25 @@ public class OnTouchEnemy : MonoBehaviour
     {
         GameObject enemyObj = collision.gameObject;
         Enemy enemy = enemyObj.GetComponent<Enemy>();
+        int enemyEleType = enemy.ElementType;
         switch (gameManager.GameMode)
         {
             case GameManager.MODE_DEFENSE:
-                if (element.GetTypeAdvantage(enemy.ElementType) != Element.TYPE_STRONGER)
+                if (element.GetTypeAdvantage(enemyEleType) != Element.TYPE_STRONGER)
                 {
-                    PlayerExplosion();
+                    TriggerExplosion();
                 }
                 break;
 
             case GameManager.MODE_ATTACK:
-                if (element.GetTypeAdvantage(enemy.ElementType) == Element.TYPE_STRONGER)
+                if (element.GetTypeAdvantage(enemyEleType) == Element.TYPE_STRONGER)
                 {
                     gameManager.Score += GameManager.SCORE_GAIN_TYPE_ADVANTAGE + bonusScore;
                     DisplayAllScoresGained(GameManager.SCORE_GAIN_TYPE_ADVANTAGE);
                     SetPlayerGauge(GameManager.GAUGE_POINT_ADVANTAGE);
                     player.PerfectChain++;
                 }
-                else if (element.GetTypeAdvantage(enemy.ElementType) == Element.TYPE_WEAKER)
+                else if (element.GetTypeAdvantage(enemyEleType) == Element.TYPE_WEAKER)
                 {
                     player.PerfectChain = 0;
                 }
@@ -86,7 +88,7 @@ public class OnTouchEnemy : MonoBehaviour
                     SetPlayerGauge(GameManager.GAUGE_POINT_SAME);
                     player.PerfectChain = 0;
                 }
-                PlayerExplosion();
+                TriggerExplosion();
                 break;
         }
     }
@@ -97,7 +99,7 @@ public class OnTouchEnemy : MonoBehaviour
         player.UpdateGaugeBar(player.CurGauge);
     }
 
-    void DisplayAllScoresGained(int score)
+    public void DisplayAllScoresGained(int score)
     {
         if (bonusScore > 0)
         {
@@ -120,7 +122,7 @@ public class OnTouchEnemy : MonoBehaviour
         Instantiate(bonusGainPrefab, transform.position + new Vector3(0,1,0), bonusGainPrefab.transform.rotation);
     }
 
-    void PlayerExplosion()
+    public void TriggerExplosion()
     {
         Destroy(gameObject);
         Instantiate(playerExplosionPrefab, transform.position, playerExplosionPrefab.transform.rotation);

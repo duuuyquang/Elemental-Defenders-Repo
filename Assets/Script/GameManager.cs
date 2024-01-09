@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
 	const float ENEMY_SPAWN_DELAY_SEC = 0.4f;
     const int SEC_COUNT_BEFORE_START = 3;
 
-	const int TIME_LIMIT_SEC = 10;
+	const int TIME_LIMIT_SEC = 180;
 	const int TIMER_DEFAULT_VALUE = -2;
 
 	public const int MODE_ATTACK	= 1;
@@ -33,7 +33,9 @@ public class GameManager : MonoBehaviour
 
 	public const int SCORE_GAIN_TYPE_ADVANTAGE = 3;
 	public const int SCORE_GAIN_TYPE_SAME = 1;
+	public const int SCORE_GAIN_TYPE_HIT_WALL = 10;
 
+	public const float GAUGE_POINT_HIT_WALL = 30f;
 	public const float GAUGE_POINT_ADVANTAGE = 10f;
 	public const float GAUGE_POINT_SAME = 3f;
 
@@ -45,6 +47,7 @@ public class GameManager : MonoBehaviour
 	public GameObject playerHPBar;
 	public GameObject enemyHPBar;
     public GameObject firework;
+	public GameObject gaugeInfo;
 
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI chainText;
@@ -109,6 +112,31 @@ public class GameManager : MonoBehaviour
 		timer = TIMER_DEFAULT_VALUE;
     }
 
+    void Update()
+    {
+        if (GameMode == MODE_ATTACK)
+        {
+            DisplayScore();
+            DisplayChain();
+            DisplayTimeText();
+        }
+
+        if (!isGameOver)
+        {
+            UpdateGameByMode();
+            HandlePlayerInput();
+        }
+    }
+
+    void PauseGame()
+    {
+        Time.timeScale = 0;
+    }
+    void ResumeGame()
+    {
+        Time.timeScale = 1;
+    }
+
     private void DisplayTimeText()
     {
         if(timer >= 0)
@@ -137,18 +165,6 @@ public class GameManager : MonoBehaviour
             CancelInvoke();
         }
     }
-
-    void Update()
-	{
-		DisplayScore();
-        DisplayChain();
-		DisplayTimeText();
-        if (!isGameOver)
-		{
-			UpdateGameByMode();
-            HandlePlayerInput();
-        }
-	}
 
 	public void DisplayScore()
 	{
@@ -236,7 +252,13 @@ public class GameManager : MonoBehaviour
 	{
 		if (playerSpawnable)
 		{
-            playerPrefabs[type].GetComponent<OnTouchEnemy>().bonusScore = bonusGauge.CurBonus;
+			int bonusScore = 0;
+			if (GameMode == MODE_ATTACK)
+			{
+				bonusScore = bonusGauge.CurBonus;
+            }
+            playerPrefabs[type].GetComponent<OnTouchEnemy>().bonusScore = bonusScore;
+
             Instantiate(
 				playerPrefabs[type],
 				playerSpawnPos[curPlayerSpawnPosIndex] + new Vector3(0, playerPrefabs[type].transform.position.y, 0),
@@ -272,20 +294,9 @@ public class GameManager : MonoBehaviour
                 }
 				break;
 			case MODE_DEFENSE:
-                if (!bonusGauge)
-                {
-                    bonusGauge = GameObject.Find("BonusGauge").GetComponent<BonusGauge>();
-                }
-
-                if (curPlayerSpawnPosIndex <= 2)
+				if (curPlayerSpawnPosIndex <= 2)
                 {
                     indicator.transform.position = playerSpawnPos[index];
-                    bonusGauge.RegenGaugeByPercentage(ENEMY_SPAWN_DELAY_SEC * 10);
-                }
-
-                if (index == 0)
-                {
-                    bonusGauge.ResetGauge();
                 }
                 break;
 		}
@@ -460,7 +471,8 @@ public class GameManager : MonoBehaviour
                 playerHPBar.SetActive(true);
 				enemyHPBar.SetActive(true);
                 indicator.SetActive(true);
-                ingameInstruction.SetActive(true);
+				ingameInstruction.SetActive(true);
+				gaugeInfo.SetActive(true);
 				break;
 			case MODE_DEFENSE:
 				SetEnemyWall();

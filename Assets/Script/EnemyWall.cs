@@ -48,7 +48,10 @@ public class EnemyWall : MonoBehaviour
 
                 if (otherObj.CompareTag("Player"))
                 {
+                    OnTouchEnemy player = otherObj.GetComponent<OnTouchEnemy>();
                     ProcessExplosion(otherObj);
+                    gameManager.Score += GameManager.SCORE_GAIN_TYPE_HIT_WALL + player.bonusScore;
+                    player.DisplayAllScoresGained(GameManager.SCORE_GAIN_TYPE_HIT_WALL);
                     Destroy(otherObj);
                 }
                 break;
@@ -64,9 +67,9 @@ public class EnemyWall : MonoBehaviour
 
     IEnumerator GameOver()
     {
-        Enemy.ClearAllEnemyUnit();
         gameManager.GameOver = true;
         yield return new WaitForSeconds(1);
+        Enemy.ClearAllEnemyUnit();
         gameManager.SetWinScreen();
     }
 

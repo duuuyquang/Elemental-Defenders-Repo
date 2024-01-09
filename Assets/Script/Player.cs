@@ -13,7 +13,7 @@ public class Player : MonoBehaviour
     private float curGauge = 0f;
     private int perfectChain = 0;
 
-    private GameObject curGaugeBar;
+    public GameObject curGaugeBar;
 
     public float CurGauge {
         get { return curGauge; }
@@ -23,12 +23,6 @@ public class Player : MonoBehaviour
     public int PerfectChain {
         get { return perfectChain; }
         set { perfectChain = Mathf.Max(value, 0); }
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        curGaugeBar = GameObject.Find("curGauge");
     }
 
     // Update is called once per frame
