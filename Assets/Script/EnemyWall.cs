@@ -8,6 +8,7 @@ public class EnemyWall : MonoBehaviour
     [SerializeField] private float hp = MAX_HP;
 
     private GameManager gameManager;
+    private Player player;
     private float initialHPScale;
 
     public GameObject explosition;
@@ -16,6 +17,7 @@ public class EnemyWall : MonoBehaviour
     void Start()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        player = GameObject.Find("Player").GetComponent<Player>();
         initialHPScale = hpBar.transform.localScale.x;
     }
 
@@ -38,10 +40,9 @@ public class EnemyWall : MonoBehaviour
                     if (hp <= 0)
                     {
                         StartCoroutine(GameOver());
-                    }
-                    else
+                    } else
                     {
-                        Enemy.SetAllUnitSpeed(gameManager.GetEnemySpeed());
+                        StartCoroutine(DelayAttackBeforeNextSpawn(GameManager.SEC_DELAY_AFTER_SHOOT));
                     }
                 }
 
@@ -62,6 +63,12 @@ public class EnemyWall : MonoBehaviour
                 }
                 break;
         }
+    }
+
+    IEnumerator DelayAttackBeforeNextSpawn(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        player.IsAttacking = false;
     }
 
     IEnumerator GameOver()

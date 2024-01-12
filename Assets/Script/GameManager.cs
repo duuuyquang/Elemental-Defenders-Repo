@@ -10,7 +10,6 @@ public class GameManager : MonoBehaviour
 	const int ENEMY_NUM = 3;
 
 	const float ENEMY_SPAWN_POS_Z	= 12;
-	const float PLAYER_SPAWN_POS_Z	= 17;
 
 	const int SHIFT_PLAYER_POS_Y	= 3;
 
@@ -39,15 +38,16 @@ public class GameManager : MonoBehaviour
 	public const float GAUGE_POINT_ADVANTAGE = 10f;
 	public const float GAUGE_POINT_SAME = 3f;
 
+	public const int SEC_DELAY_AFTER_SHOOT = 3;
+
 	public GameObject[] enemiesPrefabs;
-	public GameObject[] playerPrefabs;
 	public GameObject indicator;
 	public GameObject enemyWall;
-	public GameObject ingameInstruction;
 	public GameObject playerHPBar;
 	public GameObject enemyHPBar;
     public GameObject firework;
 	public GameObject gaugeInfo;
+	public GameObject spawnInstruction;
 
     public TextMeshProUGUI scoreText;
 	public TextMeshProUGUI chainText;
@@ -70,22 +70,22 @@ public class GameManager : MonoBehaviour
 		new Vector3( 6, 0, ENEMY_SPAWN_POS_Z)
 	};
 
-	private Vector3[] playerSpawnPos =
-	{
-		new Vector3(-6, 0, -PLAYER_SPAWN_POS_Z),
-		new Vector3(0, 0, -PLAYER_SPAWN_POS_Z),
-		new Vector3(6, 0, -PLAYER_SPAWN_POS_Z)
-	};
-
-    private int curPlayerSpawnPosIndex = 0;
 	private bool playerSpawnable = false;
 	private bool isGameOver = true;
 	private int difficulty;
 	private int mode;
     private int score = 0;
 	private int timer;
+	private bool showInstruction = true;
+	private bool isPause = false;
 
 	public TextMeshProUGUI timeText;
+
+	public bool PlayerSpawnable
+	{
+		get { return playerSpawnable; }
+		set { playerSpawnable = value; }
+	}
 
 	public bool GameOver {
 		get {
@@ -126,14 +126,42 @@ public class GameManager : MonoBehaviour
             UpdateGameByMode();
             HandlePlayerInput();
         }
+
+		if(Input.GetKeyDown(KeyCode.T))
+		{
+			ToggleInstruction();
+		}
     }
 
-    private void DisplayTimeText()
+	private void ToggleInstruction()
+	{
+		if (showInstruction)
+		{
+			showInstruction = !showInstruction;
+			spawnInstruction.SetActive(false);
+        }
+		else
+		{
+            showInstruction = !showInstruction;
+            spawnInstruction.SetActive(true);
+        }
+	}
+
+		private void DisplayTimeText()
     {
         if(timer >= 0)
 		{
 			timeText.text = "Time: " + timer;
 		}
+    }
+
+    void PauseGame()
+    {
+        Time.timeScale = 0;
+    }
+    void ResumeGame()
+    {
+        Time.timeScale = 1;
     }
 
     void TimerColdown()
@@ -169,7 +197,7 @@ public class GameManager : MonoBehaviour
 		{
 			if(combo < 1)
 			{
-				chainText.fontSize = 20;
+				chainText.fontSize = 25;
 				chainText.color = Color.white;
                 chainText.text = "";
                 DisplayComboScore(0);
@@ -181,16 +209,16 @@ public class GameManager : MonoBehaviour
 			} 
 			else if(combo < 7)
 			{
-				chainText.color = Color.yellow;
+				chainText.color = Color.green;
 			} 
 			else if(combo < 10)
 			{
-                chainText.color = Color.green;
+                chainText.color = Color.red;
             } 
 			else
 			{
-				chainText.color = Color.red;
-			}
+				chainText.color = Color.magenta;
+            }
             chainText.fontSize += 2;
         }
 		chainText.text = "Combo x" + combo;
@@ -200,11 +228,13 @@ public class GameManager : MonoBehaviour
 	public void DisplayComboScore(int chain)
 	{
         int score = ConvertChainToScore(chain);
-        string displayText = "+" + score;
-
+        string displayText = "";
+		if(score > 0)
+		{
+            displayText = "+" + score;
+        }
 		chainScoreText.text = displayText;
-        chainScoreText.color = Color.green;
-
+        chainScoreText.color = Color.yellow;
     }
 
     public void ResetChain()
@@ -223,12 +253,6 @@ public class GameManager : MonoBehaviour
         InvokeRepeating("TimerColdown", 1, 1);
     }
 
-	private void StartTimeCounter()
-	{
-        timer = 0;
-        InvokeRepeating("TimeCounter", 1, 1);
-    }
-
     void UpdateGameByMode()
 	{
 		int enemyNum = GameObject.FindGameObjectsWithTag("Enemy").Length;
@@ -239,7 +263,7 @@ public class GameManager : MonoBehaviour
 				{
                     StartTimeColdown();
                 }
-                if (enemyNum <= 0)
+                if (enemyNum <= 0 && !player.IsAttacking)
 				{
 					RestartPlayerSpawn();
                     SpawnEnemy();
@@ -258,48 +282,40 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
-    void HandlePlayerInput()
-    {
-        if (Input.GetKeyDown(KeyCode.Q))
-		{
-			SpawnElement(Element.TYPE_FIRE);
-			SetIndicator(curPlayerSpawnPosIndex);
-        }
-
-        if (Input.GetKeyDown(KeyCode.W))
-		{
-			SpawnElement(Element.TYPE_WATER);
-            SetIndicator(curPlayerSpawnPosIndex);
-        }
-
-        if (Input.GetKeyDown(KeyCode.E))
-		{
-			SpawnElement(Element.TYPE_WOOD);
-            SetIndicator(curPlayerSpawnPosIndex);
-        }
-    }
-
-    void SpawnElement(int type)
+	void HandlePlayerInput()
 	{
-		if (playerSpawnable)
+		if (Input.GetKeyDown(KeyCode.Q))
 		{
-			int bonusScore = 0;
-			if (GameMode == MODE_ATTACK)
-			{
-				bonusScore = bonusGauge.CurBonus;
-            }
-            playerPrefabs[type].GetComponent<OnTouchEnemy>().bonusScore = bonusScore;
+			player.SpawnElement(Element.TYPE_FIRE);
+			SetIndicator(player.CurPlayerSpawnPosIndex);
+		}
 
-            Instantiate(
-				playerPrefabs[type],
-				playerSpawnPos[curPlayerSpawnPosIndex] + new Vector3(0, playerPrefabs[type].transform.position.y, 0),
-				playerPrefabs[type].transform.rotation);
-            curPlayerSpawnPosIndex++;
-			if (curPlayerSpawnPosIndex > 2)
+		if (Input.GetKeyDown(KeyCode.W))
+		{
+			player.SpawnElement(Element.TYPE_WATER);
+			SetIndicator(player.CurPlayerSpawnPosIndex);
+		}
+
+		if (Input.GetKeyDown(KeyCode.E))
+		{
+			player.SpawnElement(Element.TYPE_WOOD);
+			SetIndicator(player.CurPlayerSpawnPosIndex);
+		}
+
+		if(Input.GetKeyDown(KeyCode.Escape))
+		{
+            isPause = !isPause;
+            if (isPause)
 			{
-				playerSpawnable = false;
-				indicator.SetActive(false);
-            }
+                gameMenuManager.SetPauseScreen(false);
+                ResumeGame();
+            } 
+			else
+			{
+                gameMenuManager.SetPauseScreen(true);
+                PauseGame();
+			}
+
         }
 	}
 
@@ -313,9 +329,9 @@ public class GameManager : MonoBehaviour
                     bonusGauge = GameObject.Find("BonusGauge").GetComponent<BonusGauge>();
                 }
 
-                if (curPlayerSpawnPosIndex <= 2)
+                if (player.CurPlayerSpawnPosIndex <= 2)
                 {
-                    indicator.transform.position = playerSpawnPos[index];
+                    indicator.transform.position = player.PlayerSpawnPos[index];
                     bonusGauge.RegenGaugeByPercentage(ENEMY_SPAWN_DELAY_SEC * 10);
                 }
 
@@ -324,10 +340,11 @@ public class GameManager : MonoBehaviour
                     bonusGauge.ResetGauge();
                 }
 				break;
+
 			case MODE_DEFENSE:
-				if (curPlayerSpawnPosIndex <= 2)
+				if (player.CurPlayerSpawnPosIndex <= 2)
                 {
-                    indicator.transform.position = playerSpawnPos[index];
+                    indicator.transform.position = player.PlayerSpawnPos[index];
                 }
                 break;
 		}
@@ -354,8 +371,8 @@ public class GameManager : MonoBehaviour
 
 	void RestartPlayerSpawn()
 	{
-        curPlayerSpawnPosIndex = 0;
-        SetIndicator(curPlayerSpawnPosIndex);
+        player.CurPlayerSpawnPosIndex = 0;
+        SetIndicator(player.CurPlayerSpawnPosIndex);
         playerSpawnable = true;
     }
 
@@ -418,7 +435,7 @@ public class GameManager : MonoBehaviour
         }
 		else if( mode == MODE_ATTACK)
 		{
-            enemyWall.transform.position = new Vector3(0, 0, 6);
+            enemyWall.transform.position = new Vector3(0, 0, 13);
             var main = enemyWall.transform.GetComponentInChildren<ParticleSystem>().main;
             main.startColor = colorHard;
         }
@@ -499,16 +516,18 @@ public class GameManager : MonoBehaviour
 		{
 			case MODE_ATTACK:
                 SetEnemyWall();
+				gameMenuManager.SetInGameScreen(true);
                 playerHPBar.SetActive(true);
 				enemyHPBar.SetActive(true);
                 indicator.SetActive(true);
-				ingameInstruction.SetActive(true);
+                spawnInstruction.SetActive(true);
 				gaugeInfo.SetActive(true);
 				break;
 			case MODE_DEFENSE:
-				SetEnemyWall();
+                gameMenuManager.SetInGameScreen(true);
+                SetEnemyWall();
                 indicator.SetActive(true);
-                ingameInstruction.SetActive(true);
+                spawnInstruction.SetActive(true);
                 break;
 		}
 	}

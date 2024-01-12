@@ -4,16 +4,39 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     const float MAX_GAUGE = 100f;
+    const float PLAYER_SPAWN_POS_Z = 17;
 
+    public GameObject[] playerPrefabs;
     public GameObject bullet;
     public GameObject maxGaugeEffect;
     public GameObject gaugeExplosion;
 
+    private Vector3[] playerSpawnPos =
+{
+        new Vector3(-6, 0, -PLAYER_SPAWN_POS_Z),
+        new Vector3(0, 0, -PLAYER_SPAWN_POS_Z),
+        new Vector3(6, 0, -PLAYER_SPAWN_POS_Z)
+    };
+
+
+    private bool isAttacking = false;
+
     private float initialGaugeScale = 1f;
     private float curGauge = 0f;
     private int perfectChain = 0;
+    private int curPlayerSpawnPosIndex = 0;
+
+    private SoundController soundController;
+    private GameManager gameManager;
+    private BonusGauge bonusGauge;
 
     public GameObject curGaugeBar;
+
+    public Vector3[] PlayerSpawnPos {  get { return playerSpawnPos; } }
+
+    public bool IsAttacking {  get { return isAttacking; } set { isAttacking = value; } }
+
+    public int CurPlayerSpawnPosIndex { get { return curPlayerSpawnPosIndex; } set { curPlayerSpawnPosIndex = value; } }
 
     public float CurGauge {
         get { return curGauge; }
@@ -25,11 +48,17 @@ public class Player : MonoBehaviour
         set { perfectChain = Mathf.Max(value, 0); }
     }
 
-    // Update is called once per frame
+    private void Start()
+    {
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        soundController = GameObject.Find("SoundController").GetComponent<SoundController>();
+    }
+
     void Update()
     {
         if (IsAttackable() && Input.GetKeyDown(KeyCode.Space))
         {
+            IsAttacking = true;
             ProcessAttackEnemy();
             ReleaseGaugeBarPower();
         }
@@ -40,8 +69,42 @@ public class Player : MonoBehaviour
         ShootBullet();
     }
 
+    public void SpawnElement(int type)
+    {
+        if (gameManager.PlayerSpawnable)
+        {
+
+            int bonusScore = 0;
+            if (gameManager.GameMode == GameManager.MODE_ATTACK)
+            {
+                if (!bonusGauge)
+                {
+                    bonusGauge = GameObject.Find("BonusGauge").GetComponent<BonusGauge>();
+                }
+                bonusScore = bonusGauge.CurBonus;
+            }
+            playerPrefabs[type].GetComponent<OnTouchEnemy>().bonusScore = bonusScore;
+
+            soundController.PlayPlayerSpawn();
+
+            Instantiate(
+                playerPrefabs[type],
+                playerSpawnPos[curPlayerSpawnPosIndex] + new Vector3(0, playerPrefabs[type].transform.position.y, 0),
+                playerPrefabs[type].transform.rotation);
+
+            curPlayerSpawnPosIndex++;
+            if (curPlayerSpawnPosIndex > 2)
+            {
+                gameManager.PlayerSpawnable = false;
+                gameManager.indicator.SetActive(false);
+            }
+        }
+    }
+
     private void ShootBullet()
     {
+        soundController.PlayShootBullet();
+        soundController.ToggleBulletAura(true);
         Instantiate(bullet, new Vector3(-5, 1, -21), bullet.transform.rotation);
         Instantiate(bullet, new Vector3(0, 1, -19), bullet.transform.rotation);
         Instantiate(bullet, new Vector3(5, 1, -21), bullet.transform.rotation);

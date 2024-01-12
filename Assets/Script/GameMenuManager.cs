@@ -7,8 +7,10 @@ public class GameMenuManager : MonoBehaviour
     [SerializeField] private GameObject titleText;
     [SerializeField] private GameObject gameOverScreen;
     [SerializeField] private GameObject winScreen;
-    [SerializeField] private GameObject ModeList;
-    [SerializeField] private GameObject ModeSelect;
+    [SerializeField] private GameObject pauseScreen;
+    [SerializeField] private GameObject ingameScreen;
+    [SerializeField] private GameObject modeList;
+    [SerializeField] private GameObject modeSelect;
     [SerializeField] private GameObject attackModeLevelButtons;
     [SerializeField] private GameObject defenseModeLevelButtons;
 
@@ -18,8 +20,15 @@ public class GameMenuManager : MonoBehaviour
         get { return startCounter; }
     }
 
-    public void SetModeListScreen(bool status) { ModeList.SetActive(status); }
-    public void SetModeSelectScreen(bool status) { ModeSelect.SetActive(status); }
+    public void SetPauseScreen(bool status)
+    {
+        pauseScreen.SetActive(status);
+    }
+
+    public void SetInGameScreen(bool status) { ingameScreen.SetActive(status); }
+
+    public void SetModeListScreen(bool status) { modeList.SetActive(status); }
+    public void SetModeSelectScreen(bool status) { modeSelect.SetActive(status); }
 
     public void SetGameOverScreen(bool status) { gameOverScreen.SetActive(status); }
 

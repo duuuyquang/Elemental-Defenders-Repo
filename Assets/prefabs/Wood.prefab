@@ -154,7 +154,11 @@ MonoBehaviour:
   playerExplosionPrefab: {fileID: 8689265952258163336, guid: 15ee10810c77c1d47969d91f45cbe5f9, type: 3}
   scoreGainPrefab: {fileID: 6737950529974387737, guid: 0803184fbea48594aa672b24f9fb21d3, type: 3}
   bonusGainPrefab: {fileID: 8711679641317155397, guid: 73d4a17f5ca2ec744bfbf96c464bb24a, type: 3}
+  bonusScore: 0
   elementType: 3
+  typeWeakerSound: {fileID: 3687373738400702004, guid: ecd1314f09c718d49a01bcf2c8f0f737, type: 3}
+  typeSameSound: {fileID: 6875114553088934316, guid: e70bc27a423481d49996a9a788abafdc, type: 3}
+  typeStrongerSound: {fileID: 3141788914642667832, guid: 5d33b0cb932b5f04ba06c841d2ccd02f, type: 3}
 --- !u!1001 &344795034000699212
 PrefabInstance:
   m_ObjectHideFlags: 0

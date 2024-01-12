@@ -10,16 +10,18 @@ public class OnTouchEnemy : MonoBehaviour
     public GameObject playerExplosionPrefab;
     public GameObject scoreGainPrefab;
     public GameObject bonusGainPrefab;
-    public int bonusScore;
 
+    public int bonusScore;
     public int elementType;
 
     private GameManager gameManager;
+    private SoundController soundController;
     private Player player;
 
     private void Start()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        soundController = GameObject.Find("SoundController").GetComponent<SoundController>();
         player = GameObject.Find("Player").GetComponent<Player>();
 
         switch (elementType)
@@ -63,6 +65,15 @@ public class OnTouchEnemy : MonoBehaviour
                 if (element.GetTypeAdvantage(enemyEleType) != Element.TYPE_STRONGER)
                 {
                     TriggerExplosion();
+                    soundController.PlayElementCollisionByType(SoundController.TYPE_STRONGER);
+                }
+                else if (element.GetTypeAdvantage(enemyEleType) == Element.TYPE_WEAKER)
+                {
+                    soundController.PlayElementCollisionByType(SoundController.TYPE_WEAKER);
+                }
+                else
+                {
+                    soundController.PlayElementCollisionByType(SoundController.TYPE_SAME);
                 }
                 break;
 
@@ -73,10 +84,12 @@ public class OnTouchEnemy : MonoBehaviour
                     DisplayAllScoresGained(GameManager.SCORE_GAIN_TYPE_ADVANTAGE);
                     SetPlayerGauge(GameManager.GAUGE_POINT_ADVANTAGE);
                     gameManager.DisplayCombo(++player.PerfectChain);
+                    soundController.PlayElementCollisionByType(SoundController.TYPE_STRONGER);
                 }
                 else if (element.GetTypeAdvantage(enemyEleType) == Element.TYPE_WEAKER)
                 {
                     gameManager.DisplayCombo(0);
+                    soundController.PlayElementCollisionByType(SoundController.TYPE_WEAKER);
                 }
                 else
                 {
@@ -84,6 +97,7 @@ public class OnTouchEnemy : MonoBehaviour
                     DisplayAllScoresGained(GameManager.SCORE_GAIN_TYPE_SAME);
                     SetPlayerGauge(GameManager.GAUGE_POINT_SAME);
                     gameManager.DisplayCombo(0);
+                    soundController.PlayElementCollisionByType(SoundController.TYPE_SAME);
                 }
                 TriggerExplosion();
                 break;

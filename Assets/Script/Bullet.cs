@@ -10,6 +10,7 @@ public class Bullet : MonoBehaviour
 
     private GameManager gameManager;
     private Player player;
+    private SoundController soundController;
 
     [SerializeField] private float damage = DAMAGE;
 
@@ -22,6 +23,7 @@ public class Bullet : MonoBehaviour
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         player = GameObject.Find("Player").GetComponent<Player>();
+        soundController = GameObject.Find("SoundController").GetComponent<SoundController>();
     }
 
     void Update()
@@ -39,7 +41,9 @@ public class Bullet : MonoBehaviour
         if(other.gameObject.CompareTag("EnemyWall"))
         {
             Instantiate(explosion, transform.position, explosion.transform.rotation);
-            if(player.PerfectChain > 0)
+            soundController.PlayBulletExplosion();
+            soundController.ToggleBulletAura(false);
+            if (player.PerfectChain > 0)
             {
                 int score = gameManager.ConvertChainToScore(player.PerfectChain);
                 gameManager.DisplayCombo(0);

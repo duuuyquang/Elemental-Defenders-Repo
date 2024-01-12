@@ -13,12 +13,14 @@ public class Wall : MonoBehaviour
     private GameManager gameManager;
     private Player player;
     private float initialHPScale;
+    private SoundController soundController;
 
     void Start()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         player = GameObject.Find("Player").GetComponent<Player>();
         initialHPScale = hpBar.transform.localScale.x;
+        soundController = GameObject.Find("SoundController").GetComponent<SoundController>();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -49,6 +51,7 @@ public class Wall : MonoBehaviour
     private void ProcessExplosion(GameObject enemyObj)
     {
         Instantiate(explosion, enemyObj.transform.position, explosion.transform.rotation);
+        soundController.PlayPlayerWallExplosion();
     }
 
     private void ProcessEnemyAttack(GameObject enemyObj)
