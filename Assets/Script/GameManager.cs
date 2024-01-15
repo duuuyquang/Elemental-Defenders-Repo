@@ -412,7 +412,8 @@ public class GameManager : MonoBehaviour
 
 	public void RestartGame()
 	{
-		DontDestroyOnLoad(playerSetting);
+		ResumeGame(); // in case player pause game to restart
+        DontDestroyOnLoad(playerSetting);
 		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 	}
 
