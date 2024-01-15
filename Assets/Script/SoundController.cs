@@ -27,6 +27,7 @@ public class SoundController: MonoBehaviour
     public AudioSource backgroundSound;
     public AudioSource startSound;
     public AudioSource countSound;
+    public AudioSource healingSound;
 
     private bool isBackgroundSoundPlay = false;
     private int currentThemeSoundIndexedByMode = -1;
@@ -151,5 +152,10 @@ public class SoundController: MonoBehaviour
     public void PlayCountSound()
     {
         countSound.Play();
+    }
+
+    public void PlayHealingSound()
+    {
+        healingSound.Play();
     }
 }

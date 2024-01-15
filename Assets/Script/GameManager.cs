@@ -142,7 +142,7 @@ public class GameManager : MonoBehaviour
             HandlePlayerInput();
         }
 
-		if(Input.GetKeyDown(KeyCode.T))
+		if(Input.GetKeyDown(KeyCode.G))
 		{
 			ToggleInstruction();
 		}
@@ -577,4 +577,9 @@ public class GameManager : MonoBehaviour
 
 		return score;
     }
+
+	public void PlayLowHPEffect()
+	{
+
+	}
 }
