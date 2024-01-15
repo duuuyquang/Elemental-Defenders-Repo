@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
@@ -40,6 +41,16 @@ public class GameManager : MonoBehaviour
 
 	public const int SEC_DELAY_AFTER_SHOOT = 3;
 
+	const int COMBO_BEGIN = 1;
+	const int COMBO_SHORT = 4;
+	const int COMBO_MEDIUM = 7;
+	const int COMBO_LONG = 10;
+
+	const int COMBO_TEXT_BEGIN = 25;
+	const int COMBO_TEXT_INCREASE_STEP = 2;
+
+	
+
 	public GameObject[] enemiesPrefabs;
 	public GameObject indicator;
 	public GameObject enemyWall;
@@ -56,6 +67,8 @@ public class GameManager : MonoBehaviour
     private GameMenuManager gameMenuManager;
 	private Player player;
 	private BonusGauge bonusGauge;
+    private SoundController soundController;
+	private GameObject playerSetting;
 
     private Color colorEasy		= new Color(0.74f, 0.7f, 0.05f);
     private Color colorNormal	= new Color(1.0f, 0.64f, 0.0f);
@@ -110,7 +123,9 @@ public class GameManager : MonoBehaviour
 	{
         gameMenuManager = GameObject.Find("GameMenuManager").GetComponent<GameMenuManager>();
 		player = GameObject.Find("Player").GetComponent<Player>();
-		timer = TIMER_DEFAULT_VALUE;
+		soundController = GameObject.Find("SoundController").GetComponent<SoundController>();
+		playerSetting = GameObject.Find("PlayerSetting");
+        timer = TIMER_DEFAULT_VALUE;
     }
 
     void Update()
@@ -176,15 +191,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-	void TimeCounter()
-	{
-		timer++;
-        if (isGameOver)
-        {
-            CancelInvoke();
-        }
-    }
-
 	public void DisplayScore()
 	{
 		scoreText.text = "Score: " + score;
@@ -193,33 +199,34 @@ public class GameManager : MonoBehaviour
 	public void DisplayCombo(int combo)
 	{
 		player.PerfectChain = combo;
-        if (combo <= 10)
+		if(combo < COMBO_BEGIN)
 		{
-			if(combo < 1)
-			{
-				chainText.fontSize = 25;
-				chainText.color = Color.white;
-                chainText.text = "";
-                DisplayComboScore(0);
-				return;
-            }
-			else if(combo < 4)
-			{
-				chainText.color = Color.cyan;
-			} 
-			else if(combo < 7)
-			{
-				chainText.color = Color.green;
-			} 
-			else if(combo < 10)
-			{
-                chainText.color = Color.red;
-            } 
-			else
-			{
-				chainText.color = Color.magenta;
-            }
-            chainText.fontSize += 2;
+			chainText.fontSize = COMBO_TEXT_BEGIN;
+			chainText.color = Color.white;
+            chainText.text = "";
+            DisplayComboScore(0);
+			return;
+        }
+		else if(combo < COMBO_SHORT)
+		{
+			chainText.color = Color.cyan;
+		} 
+		else if(combo < COMBO_MEDIUM)
+		{
+			chainText.color = Color.green;
+		} 
+		else if(combo < COMBO_LONG)
+		{
+            chainText.color = Color.red;
+        } 
+		else
+		{
+			chainText.color = Color.magenta;
+        }
+
+
+		if (combo <= COMBO_LONG) {
+            chainText.fontSize += COMBO_TEXT_INCREASE_STEP;
         }
 		chainText.text = "Combo x" + combo;
 		DisplayComboScore(combo);
@@ -307,13 +314,15 @@ public class GameManager : MonoBehaviour
             isPause = !isPause;
             if (isPause)
 			{
-                gameMenuManager.SetPauseScreen(false);
-                ResumeGame();
+                gameMenuManager.SetPauseScreen(true);
+				gameMenuManager.SetSoundOption(true);
+                PauseGame();
             } 
 			else
 			{
-                gameMenuManager.SetPauseScreen(true);
-                PauseGame();
+                gameMenuManager.SetPauseScreen(false);
+                gameMenuManager.SetSoundOption(false);
+                ResumeGame();
 			}
 
         }
@@ -403,6 +412,7 @@ public class GameManager : MonoBehaviour
 
 	public void RestartGame()
 	{
+		DontDestroyOnLoad(playerSetting);
 		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 	}
 
@@ -467,23 +477,25 @@ public class GameManager : MonoBehaviour
 	public void StartAttackMode(int difficultIndex)
 	{
 		SetGameStartCounter(MODE_ATTACK, difficultIndex);
-	}
+        soundController.PlayButtonClick();
+    }
 
     public void StartDefenseMode(int difficultIndex)
     {
         SetGameStartCounter(MODE_DEFENSE, difficultIndex);
+        soundController.PlayButtonClick();
     }
 
     private void SetGameStartCounter(int mode, int difficultIndex)
 	{
-        gameMenuManager.SetModeListScreen(false);
-		gameMenuManager.DestroyTitleText();
-
+		gameMenuManager.SetStartScreen(false);
+        gameMenuManager.SetSoundOption(false);
         StartCoroutine(StartCounter(mode, difficultIndex));
 	}
 
 	IEnumerator StartCounter(int mode, int difficultIndex)
 	{
+        yield return new WaitForSeconds(0.7f);
         TextMeshProUGUI startCounterTextComponent = gameMenuManager.StartCounter.GetComponent<TextMeshProUGUI>();
 		int count = SEC_COUNT_BEFORE_START;
 		while (count >= 0)
@@ -492,13 +504,15 @@ public class GameManager : MonoBehaviour
 			if (count == 0)
 			{
 				textToPrint = "GO!";
+				soundController.PlayStartSound();
 			}
 			startCounterTextComponent.text = textToPrint;
 			count--;
+			soundController.PlayCountSound();
 			yield return new WaitForSeconds(0.7f);
 		}
-		StartGame(mode, difficultIndex);
-		Destroy(gameMenuManager.StartCounter);
+        Destroy(gameMenuManager.StartCounter);
+        StartGame(mode, difficultIndex);
     }
 
 	void StartGame(int modeIndex, int difficultIndex)

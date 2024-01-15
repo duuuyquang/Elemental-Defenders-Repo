@@ -13,17 +13,30 @@ public class GameMenuManager : MonoBehaviour
     [SerializeField] private GameObject modeSelect;
     [SerializeField] private GameObject attackModeLevelButtons;
     [SerializeField] private GameObject defenseModeLevelButtons;
+    [SerializeField] private GameObject soundOption;
 
     [SerializeField] private TextMeshProUGUI startCounter;
+    [SerializeField] private TMP_Dropdown themeDropdown;
+
+    SoundController soundController;
 
     public TextMeshProUGUI StartCounter {
         get { return startCounter; }
+    }
+
+    private void Start()
+    {
+        soundController = GameObject.Find("SoundController").GetComponent<SoundController>();
     }
 
     public void SetPauseScreen(bool status)
     {
         pauseScreen.SetActive(status);
     }
+
+    public void SetSoundOption(bool status) { soundOption.SetActive(status); }
+
+    public void SetStartScreen(bool status) { startScreen.SetActive(status); }
 
     public void SetInGameScreen(bool status) { ingameScreen.SetActive(status); }
 
@@ -34,7 +47,7 @@ public class GameMenuManager : MonoBehaviour
 
     public void SetWinScreen(bool status) {  winScreen.SetActive(status); }
 
-    public void SetAttackModeLevelButtons(bool status) {  attackModeLevelButtons.SetActive(status); }
+    public void SetAttackModeLevelButtons(bool status) { attackModeLevelButtons.SetActive(status); }
 
     public void SetDefenseModeLevelButtons(bool status) {  defenseModeLevelButtons.SetActive(status); }  
 
@@ -45,10 +58,12 @@ public class GameMenuManager : MonoBehaviour
         SetModeSelectScreen(true);
         SetAttackModeLevelButtons(false);
         SetDefenseModeLevelButtons(false);
+        soundController.PlayButtonClick();
     }
 
     public void OnSelectMode(int mode) {
         SetModeSelectScreen(false);
+        soundController.PlayButtonClick();
         switch (mode)
         {
             case GameManager.MODE_ATTACK:
@@ -60,8 +75,14 @@ public class GameMenuManager : MonoBehaviour
         }
     }
 
+    public void SetCurrentThemeDropdownVal(int value)
+    {
+        themeDropdown.value = value;
+    }
+
     public void OnClickExit()
     {
+        soundController.PlayButtonClick();
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
