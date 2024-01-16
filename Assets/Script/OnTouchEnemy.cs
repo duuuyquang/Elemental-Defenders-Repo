@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -7,7 +8,8 @@ public class OnTouchEnemy : MonoBehaviour
 
     [SerializeField] private float speed = 10f;
 
-    public GameObject playerExplosionPrefab;
+    public GameObject explosionPrefab;
+    public GameObject gloryEffectPrefab;
     public GameObject scoreGainPrefab;
     public GameObject bonusGainPrefab;
 
@@ -18,11 +20,14 @@ public class OnTouchEnemy : MonoBehaviour
     private SoundController soundController;
     private Player player;
 
+    private Animator animator;
+
     private void Start()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         soundController = GameObject.Find("SoundController").GetComponent<SoundController>();
         player = GameObject.Find("Player").GetComponent<Player>();
+        animator = gameObject.GetComponentInChildren<Animator>();
 
         switch (elementType)
         {
@@ -35,6 +40,11 @@ public class OnTouchEnemy : MonoBehaviour
             case Element.TYPE_WOOD:
                 element = new Wood();
                 break;
+        }
+
+        if (gameManager.GameMode == GameManager.MODE_DEFENSE)
+        {
+            animator.SetBool("isDefending", true);
         }
     }
 
@@ -85,11 +95,14 @@ public class OnTouchEnemy : MonoBehaviour
                     SetPlayerGauge(GameManager.GAUGE_POINT_ADVANTAGE);
                     gameManager.DisplayCombo(++player.PerfectChain);
                     soundController.PlayElementCollisionByType(SoundController.TYPE_STRONGER);
+                    animator.SetBool("isVictory", true);
+                    StartCoroutine(AnimateAfterCollision(true));
                 }
                 else if (element.GetTypeAdvantage(enemyEleType) == Element.TYPE_WEAKER)
                 {
                     gameManager.DisplayCombo(0);
                     soundController.PlayElementCollisionByType(SoundController.TYPE_WEAKER);
+                    TriggerExplosion();
                 }
                 else
                 {
@@ -98,8 +111,9 @@ public class OnTouchEnemy : MonoBehaviour
                     SetPlayerGauge(GameManager.GAUGE_POINT_SAME);
                     gameManager.DisplayCombo(0);
                     soundController.PlayElementCollisionByType(SoundController.TYPE_SAME);
+                    animator.SetBool("isDead", true);
+                    StartCoroutine(AnimateAfterCollision(false));
                 }
-                TriggerExplosion();
                 break;
         }
     }
@@ -136,6 +150,18 @@ public class OnTouchEnemy : MonoBehaviour
     public void TriggerExplosion()
     {
         Destroy(gameObject);
-        Instantiate(playerExplosionPrefab, transform.position, playerExplosionPrefab.transform.rotation);
+        Instantiate(explosionPrefab, transform.position, explosionPrefab.transform.rotation);
+    }
+
+    IEnumerator AnimateAfterCollision(bool isGlory)
+    {
+        Instantiate(explosionPrefab, transform.position, explosionPrefab.transform.rotation);
+        speed = 0;
+        yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length + 1f);
+        if (isGlory)
+        {
+            Instantiate(gloryEffectPrefab, transform.position + new Vector3(0, 1, 0), gloryEffectPrefab.transform.rotation);
+        }
+        Destroy(gameObject);
     }
 }

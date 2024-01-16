@@ -14,6 +14,7 @@ public class Wall : MonoBehaviour
     private Player player;
     private float initialHPScale;
     private SoundController soundController;
+    private EnemyWall enemyWall;
     private Color defaultHPColor = Color.red;
     private Color regenHPColor = Color.green;
 
@@ -23,6 +24,7 @@ public class Wall : MonoBehaviour
         player = GameObject.Find("Player").GetComponent<Player>();
         initialHPScale = hpBar.transform.localScale.x;
         soundController = GameObject.Find("SoundController").GetComponent<SoundController>();
+        enemyWall = GameObject.Find("EnemyWall").GetComponent<EnemyWall>();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -32,6 +34,7 @@ public class Wall : MonoBehaviour
             switch(gameManager.GameMode)
             {
                 case GameManager.MODE_ATTACK:
+                    Enemy enemy = other.gameObject.GetComponent<Enemy>();
                     ProcessExplosion(other.gameObject);
                     ProcessEnemyAttack(other.gameObject);
                     UpdateHPBar();
@@ -39,6 +42,10 @@ public class Wall : MonoBehaviour
                     ToggleLowHPEffect();
                     gameManager.DisplayCombo(0);
                     player.UpdateGaugeBar(0);
+                    Debug.Log("enemy damage:" + enemy.Damage);
+                    Debug.Log("enemy CurRegenRate:" + gameManager.GetEnemyCurrentRegenRate());
+                    Debug.Log("enemy regenfinal:" + enemy.Damage * gameManager.GetEnemyCurrentRegenRate());
+                    enemyWall.RegenHP(enemy.Damage * gameManager.GetEnemyCurrentRegenRate());
                     if (hp <= 0)
                     {
                         StartCoroutine(GameOver());

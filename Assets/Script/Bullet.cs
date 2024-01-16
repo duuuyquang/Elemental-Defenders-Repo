@@ -11,7 +11,6 @@ public class Bullet : MonoBehaviour
     private GameManager gameManager;
     private Player player;
     private SoundController soundController;
-    private Wall playerWall;
 
     [SerializeField] private float damage = DAMAGE;
 
@@ -25,7 +24,6 @@ public class Bullet : MonoBehaviour
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         player = GameObject.Find("Player").GetComponent<Player>();
         soundController = GameObject.Find("SoundController").GetComponent<SoundController>();
-        playerWall = GameObject.Find("PlayerWall").GetComponent<Wall>();
     }
 
     void Update()
@@ -51,7 +49,6 @@ public class Bullet : MonoBehaviour
                 gameManager.DisplayCombo(0);
                 gameManager.Score += score;
                 DisplayScoreGain(score);
-                playerWall.RegenHP(15);
             }
         }
     }

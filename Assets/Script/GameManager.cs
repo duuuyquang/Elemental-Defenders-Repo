@@ -10,26 +10,34 @@ public class GameManager : MonoBehaviour
 {
 	const int ENEMY_NUM = 3;
 
-	const float ENEMY_SPAWN_POS_Z	= 12;
+	const float ENEMY_SPAWN_POS_Z = 12;
 
-	const int SHIFT_PLAYER_POS_Y	= 3;
+	const int SHIFT_PLAYER_POS_Y = 3;
 
-	const int LEVEL_EASY	= 1;
-	const int LEVEL_NORMAL	= 2;
-	const int LEVEL_HARD	= 3;
+	public const int LEVEL_EASY = 1;
+	public const int LEVEL_NORMAL = 2;
+	public const int LEVEL_HARD = 3;
 
-	const float ENEMY_SPEED_EASY	= 3f;
-	const float ENEMY_SPEED_MEDIUM	= 6f;
-    const float ENEMY_SPEED_HARD	= 9f;
+	const float ENEMY_SPEED_EASY = 3f;
+	const float ENEMY_SPEED_MEDIUM = 7f;
+	const float ENEMY_SPEED_HARD = 10f;
+
+	const float ENEMY_REGEN_RATE_EASY = 0.25f;
+	const float ENEMY_REGEN_RATE_MEDIUM = 0.75f;
+	const float ENEMY_REGEN_RATE_HARD = 1.25f;
+
+	const float PLAYER_REGEN_RATE_EASY = 1.5f;
+	const float PLAYER_REGEN_RATE_MEDIUM = 1f;
+	const float PLAYER_REGEN_RATE_HARD = 0.5f;
 
 	const float ENEMY_SPAWN_DELAY_SEC = 0.4f;
-    const int SEC_COUNT_BEFORE_START = 3;
+	const int SEC_COUNT_BEFORE_START = 3;
 
-	const int TIME_LIMIT_SEC = 180;
+	const int TIME_LIMIT_SEC = 150;
 	const int TIMER_DEFAULT_VALUE = -2;
 
-	public const int MODE_ATTACK	= 1;
-	public const int MODE_DEFENSE	= 2;
+	public const int MODE_ATTACK = 1;
+	public const int MODE_DEFENSE = 2;
 
 	public const int SCORE_GAIN_TYPE_ADVANTAGE = 3;
 	public const int SCORE_GAIN_TYPE_SAME = 1;
@@ -49,34 +57,33 @@ public class GameManager : MonoBehaviour
 	const int COMBO_TEXT_BEGIN = 25;
 	const int COMBO_TEXT_INCREASE_STEP = 2;
 
-	
-
 	public GameObject[] enemiesPrefabs;
 	public GameObject indicator;
 	public GameObject enemyWall;
 	public GameObject playerHPBar;
 	public GameObject enemyHPBar;
-    public GameObject firework;
+	public GameObject firework;
 	public GameObject gaugeInfo;
 	public GameObject spawnInstruction;
 
-    public TextMeshProUGUI scoreText;
+	public TextMeshProUGUI scoreText;
 	public TextMeshProUGUI chainText;
 	public TextMeshProUGUI chainScoreText;
+	public TextMeshProUGUI timeText;
 
-    private GameMenuManager gameMenuManager;
+	private GameMenuManager gameMenuManager;
 	private Player player;
 	private BonusGauge bonusGauge;
-    private SoundController soundController;
+	private SoundController soundController;
 	private GameObject playerSetting;
 
-    private Color colorEasy		= new Color(0.74f, 0.7f, 0.05f);
-    private Color colorNormal	= new Color(1.0f, 0.64f, 0.0f);
-    private Color colorHard		= new Color(0.52f, 0.0f, 0.73f);
+	private Color colorEasy = new Color(0.74f, 0.7f, 0.05f);
+	private Color colorNormal = new Color(1.0f, 0.64f, 0.0f);
+	private Color colorHard = new Color(0.52f, 0.0f, 0.73f);
 
-    private Vector3 fireworkPos = new Vector3(0, -6, -13);
+	private Vector3 fireworkPos = new Vector3(0, -6, -13);
 
-    private Vector3[] enemySpawnPos =
+	private Vector3[] enemySpawnPos =
 	{
 		new Vector3(-6, 0, ENEMY_SPAWN_POS_Z),
 		new Vector3( 0, 0, ENEMY_SPAWN_POS_Z),
@@ -87,12 +94,13 @@ public class GameManager : MonoBehaviour
 	private bool isGameOver = true;
 	private int difficulty;
 	private int mode;
-    private int score = 0;
+	private int score = 0;
 	private int timer;
 	private bool showInstruction = true;
 	private bool isPause = false;
 
-	public TextMeshProUGUI timeText;
+
+	public int Difficulty { get { return difficulty; } }
 
 	public bool PlayerSpawnable
 	{
@@ -100,9 +108,11 @@ public class GameManager : MonoBehaviour
 		set { playerSpawnable = value; }
 	}
 
-	public bool GameOver {
-		get {
-			return isGameOver; 
+	public bool GameOver
+	{
+		get
+		{
+			return isGameOver;
 		}
 		set
 		{
@@ -110,43 +120,44 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
-    public int GameMode {  get { return mode; } }
+	public int GameMode { get { return mode; } }
 
-	public int Score {
+	public int Score
+	{
 		get { return score; }
-		set {  
+		set
+		{
 			score = Math.Max(0, value);
 		}
 	}
 
 	void Start()
 	{
-        gameMenuManager = GameObject.Find("GameMenuManager").GetComponent<GameMenuManager>();
+		gameMenuManager = GameObject.Find("GameMenuManager").GetComponent<GameMenuManager>();
 		player = GameObject.Find("Player").GetComponent<Player>();
 		soundController = GameObject.Find("SoundController").GetComponent<SoundController>();
 		playerSetting = GameObject.Find("PlayerSetting");
-        timer = TIMER_DEFAULT_VALUE;
-    }
+		timer = TIMER_DEFAULT_VALUE;
+	}
 
-    void Update()
-    {
-        if (GameMode == MODE_ATTACK)
-        {
-            DisplayScore();
-            DisplayTimeText();
-        }
+	void Update()
+	{
+		if (!isGameOver)
+		{
+			if (GameMode == MODE_ATTACK)
+			{
+				DisplayScore();
+				DisplayTimeText();
+			}
+			UpdateGameByMode();
+			HandlePlayerInput();
+		}
 
-        if (!isGameOver)
-        {
-            UpdateGameByMode();
-            HandlePlayerInput();
-        }
-
-		if(Input.GetKeyDown(KeyCode.G))
+		if (Input.GetKeyDown(KeyCode.G))
 		{
 			ToggleInstruction();
 		}
-    }
+	}
 
 	private void ToggleInstruction()
 	{
@@ -154,136 +165,137 @@ public class GameManager : MonoBehaviour
 		{
 			showInstruction = !showInstruction;
 			spawnInstruction.SetActive(false);
-        }
+		}
 		else
 		{
-            showInstruction = !showInstruction;
-            spawnInstruction.SetActive(true);
-        }
+			showInstruction = !showInstruction;
+			spawnInstruction.SetActive(true);
+		}
 	}
 
-		private void DisplayTimeText()
-    {
-        if(timer >= 0)
+	private void DisplayTimeText()
+	{
+		if (timer >= 0)
 		{
-			timeText.text = "Time: " + timer;
+			timeText.text = "TimeLeft: " + timer;
 		}
-    }
+	}
 
-    void PauseGame()
-    {
-        Time.timeScale = 0;
-    }
-    void ResumeGame()
-    {
-        Time.timeScale = 1;
-    }
+	void PauseGame()
+	{
+		Time.timeScale = 0;
+	}
+	void ResumeGame()
+	{
+		Time.timeScale = 1;
+	}
 
-    void TimerColdown()
+	void TimerColdown()
 	{
 		timer--;
-		if(timer < 0)
+		if (timer < 0)
 		{
-            isGameOver = true;
+			isGameOver = true;
 			SetGameOverMenu();
 			Enemy.ClearAllEnemyUnit();
 			CancelInvoke();
-        }
-    }
+		}
+	}
 
 	public void DisplayScore()
 	{
 		scoreText.text = "Score: " + score;
-    }
+	}
 
 	public void DisplayCombo(int combo)
 	{
 		player.PerfectChain = combo;
-		if(combo < COMBO_BEGIN)
+		if (combo < COMBO_BEGIN)
 		{
 			chainText.fontSize = COMBO_TEXT_BEGIN;
 			chainText.color = Color.white;
-            chainText.text = "";
-            DisplayComboScore(0);
+			chainText.text = "";
+			DisplayComboScore(0);
 			return;
-        }
-		else if(combo < COMBO_SHORT)
+		}
+		else if (combo < COMBO_SHORT)
 		{
 			chainText.color = Color.cyan;
-		} 
-		else if(combo < COMBO_MEDIUM)
+		}
+		else if (combo < COMBO_MEDIUM)
 		{
 			chainText.color = Color.green;
-		} 
-		else if(combo < COMBO_LONG)
+		}
+		else if (combo < COMBO_LONG)
 		{
-            chainText.color = Color.red;
-        } 
+			chainText.color = Color.red;
+		}
 		else
 		{
 			chainText.color = Color.magenta;
-        }
+		}
 
 
-		if (combo <= COMBO_LONG) {
-            chainText.fontSize += COMBO_TEXT_INCREASE_STEP;
-        }
+		if (combo <= COMBO_LONG)
+		{
+			chainText.fontSize += COMBO_TEXT_INCREASE_STEP;
+		}
 		chainText.text = "Combo x" + combo;
 		DisplayComboScore(combo);
-    }
+	}
 
 	public void DisplayComboScore(int chain)
 	{
-        int score = ConvertChainToScore(chain);
-        string displayText = "";
-		if(score > 0)
+		int score = ConvertChainToScore(chain);
+		string displayText = "";
+		if (score > 0)
 		{
-            displayText = "+" + score;
-        }
+			displayText = "+" + score;
+		}
 		chainScoreText.text = displayText;
-        chainScoreText.color = Color.yellow;
-    }
+		chainScoreText.color = Color.yellow;
+	}
 
-    public void ResetChain()
-    {
-        player.PerfectChain = 0;
-    }
+	public void ResetChain()
+	{
+		player.PerfectChain = 0;
+	}
 
-    public void UpdatePerfectChain()
-    {
-        player.PerfectChain++;
-    }
-	
+	public void UpdatePerfectChain()
+	{
+		player.PerfectChain++;
+	}
+
 	private void StartTimeColdown()
 	{
-        timer = TIME_LIMIT_SEC;
-        InvokeRepeating("TimerColdown", 1, 1);
-    }
+		timer = TIME_LIMIT_SEC;
+		InvokeRepeating("TimerColdown", 1, 1);
+	}
 
-    void UpdateGameByMode()
+	void UpdateGameByMode()
 	{
 		int enemyNum = GameObject.FindGameObjectsWithTag("Enemy").Length;
-        switch (mode)
+		switch (mode)
 		{
 			case MODE_ATTACK:
 				if (timer == TIMER_DEFAULT_VALUE)
 				{
-                    StartTimeColdown();
-                }
-                if (enemyNum <= 0 && !player.IsAttacking)
+					StartTimeColdown();
+				}
+				if (enemyNum <= 0 && !player.IsAttacking)
 				{
 					RestartPlayerSpawn();
-                    SpawnEnemy();
-                }
+					SpawnEnemy();
+				}
 				break;
 			case MODE_DEFENSE:
 				if (enemyNum <= 0)
 				{
-                    RestartPlayerSpawn();
-                    SpawnEnemy();
+					RestartPlayerSpawn();
+					SpawnEnemy();
 					ShiftPlayerPos();
 				}
-                break;
+				break;
 			default:
 				return;
 		}
@@ -309,67 +321,67 @@ public class GameManager : MonoBehaviour
 			SetIndicator(player.CurPlayerSpawnPosIndex);
 		}
 
-		if(Input.GetKeyDown(KeyCode.Escape))
+		if (Input.GetKeyDown(KeyCode.Escape))
 		{
-            isPause = !isPause;
-            if (isPause)
+			isPause = !isPause;
+			if (isPause)
 			{
-                gameMenuManager.SetPauseScreen(true);
+				gameMenuManager.SetPauseScreen(true);
 				gameMenuManager.SetSoundOption(true);
-                PauseGame();
-            } 
+				PauseGame();
+			}
 			else
 			{
-                gameMenuManager.SetPauseScreen(false);
-                gameMenuManager.SetSoundOption(false);
-                ResumeGame();
+				gameMenuManager.SetPauseScreen(false);
+				gameMenuManager.SetSoundOption(false);
+				ResumeGame();
 			}
 
-        }
+		}
 	}
 
 	void SetIndicator(int index)
 	{
-		switch(mode)
+		switch (mode)
 		{
 			case MODE_ATTACK:
-                if (!bonusGauge)
-                {
-                    bonusGauge = GameObject.Find("BonusGauge").GetComponent<BonusGauge>();
-                }
+				if (!bonusGauge)
+				{
+					bonusGauge = GameObject.Find("BonusGauge").GetComponent<BonusGauge>();
+				}
 
-                if (player.CurPlayerSpawnPosIndex <= 2)
-                {
-                    indicator.transform.position = player.PlayerSpawnPos[index];
-                    bonusGauge.RegenGaugeByPercentage(ENEMY_SPAWN_DELAY_SEC * 10);
-                }
+				if (player.CurPlayerSpawnPosIndex <= 2)
+				{
+					indicator.transform.position = player.PlayerSpawnPos[index];
+					bonusGauge.RegenGaugeByPercentage(ENEMY_SPAWN_DELAY_SEC * 10);
+				}
 
-                if (index == 0)
-                {
-                    bonusGauge.ResetGauge();
-                }
+				if (index == 0)
+				{
+					bonusGauge.ResetGauge();
+				}
 				break;
 
 			case MODE_DEFENSE:
 				if (player.CurPlayerSpawnPosIndex <= 2)
-                {
-                    indicator.transform.position = player.PlayerSpawnPos[index];
-                }
-                break;
+				{
+					indicator.transform.position = player.PlayerSpawnPos[index];
+				}
+				break;
 		}
 	}
 
 	void SpawnEnemy()
 	{
-        indicator.SetActive(true);
-        StartCoroutine(SpawnEnemyByDelay(ENEMY_SPAWN_DELAY_SEC));
-    }
+		indicator.SetActive(true);
+		StartCoroutine(SpawnEnemyByDelay(ENEMY_SPAWN_DELAY_SEC));
+	}
 
 	IEnumerator SpawnEnemyByDelay(float seconds)
 	{
-        for (int i = 0; i < ENEMY_NUM; i++)
-        {
-            int randomIndex = Random.Range(0, enemiesPrefabs.Length);
+		for (int i = 0; i < ENEMY_NUM; i++)
+		{
+			int randomIndex = Random.Range(0, enemiesPrefabs.Length);
 			Instantiate(
 				enemiesPrefabs[randomIndex],
 				enemySpawnPos[i] + new Vector3(0, enemiesPrefabs[randomIndex].transform.position.y, 0),
@@ -380,15 +392,15 @@ public class GameManager : MonoBehaviour
 
 	void RestartPlayerSpawn()
 	{
-        player.CurPlayerSpawnPosIndex = 0;
-        SetIndicator(player.CurPlayerSpawnPosIndex);
-        playerSpawnable = true;
-    }
+		player.CurPlayerSpawnPosIndex = 0;
+		SetIndicator(player.CurPlayerSpawnPosIndex);
+		playerSpawnable = true;
+	}
 
 	void ShiftPlayerPos()
 	{
 		GameObject[] curPlayerElements = GameObject.FindGameObjectsWithTag("Player");
-		foreach(GameObject curPlayerElement in curPlayerElements)
+		foreach (GameObject curPlayerElement in curPlayerElements)
 		{
 			StartCoroutine(MovePlayerUnitForward(curPlayerElement));
 		}
@@ -396,7 +408,7 @@ public class GameManager : MonoBehaviour
 
 	IEnumerator MovePlayerUnitForward(GameObject gameObject)
 	{
-		if(gameObject != null)
+		if (gameObject != null)
 		{
 			float count = 0;
 			float spf = 1.0f / 60.0f;
@@ -413,64 +425,64 @@ public class GameManager : MonoBehaviour
 	public void RestartGame()
 	{
 		ResumeGame(); // in case player pause game to restart
-        DontDestroyOnLoad(playerSetting);
+		DontDestroyOnLoad(playerSetting);
 		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 	}
 
 	void SetEnemyWall()
 	{
-		if(mode == MODE_DEFENSE)
+		if (mode == MODE_DEFENSE)
 		{
-            Color wallColor;
-            switch (difficulty)
-            {
-                case LEVEL_EASY:
-                    enemyWall.transform.position = new Vector3(0, 0, -SHIFT_PLAYER_POS_Y * 2);
-                    wallColor = colorEasy;
-                    break;
-                case LEVEL_NORMAL:
-                    enemyWall.transform.position = new Vector3(0, 0, 0);
-                    wallColor = colorNormal;
-                    break;
-                case LEVEL_HARD:
-                    enemyWall.transform.position = new Vector3(0, 0, SHIFT_PLAYER_POS_Y * 2);
-                    wallColor = colorHard;
-                    break;
-                default:
-                    enemyWall.transform.position = new Vector3(0, 0, 0);
-                    wallColor = colorNormal;
-                    break;
-            }
-            var main = enemyWall.transform.GetComponentInChildren<ParticleSystem>().main;
-            main.startColor = wallColor;
-        }
-		else if( mode == MODE_ATTACK)
+			Color wallColor;
+			switch (difficulty)
+			{
+				case LEVEL_EASY:
+					enemyWall.transform.position = new Vector3(0, 0, -SHIFT_PLAYER_POS_Y * 2);
+					wallColor = colorEasy;
+					break;
+				case LEVEL_NORMAL:
+					enemyWall.transform.position = new Vector3(0, 0, 0);
+					wallColor = colorNormal;
+					break;
+				case LEVEL_HARD:
+					enemyWall.transform.position = new Vector3(0, 0, SHIFT_PLAYER_POS_Y * 2);
+					wallColor = colorHard;
+					break;
+				default:
+					enemyWall.transform.position = new Vector3(0, 0, 0);
+					wallColor = colorNormal;
+					break;
+			}
+			var main = enemyWall.transform.GetComponentInChildren<ParticleSystem>().main;
+			main.startColor = wallColor;
+		}
+		else if (mode == MODE_ATTACK)
 		{
-            enemyWall.transform.position = new Vector3(0, 0, 13);
-            var main = enemyWall.transform.GetComponentInChildren<ParticleSystem>().main;
-            main.startColor = colorHard;
-        }
-        enemyWall.SetActive(true);
-    }
+			enemyWall.transform.position = new Vector3(0, 0, 13);
+			var main = enemyWall.transform.GetComponentInChildren<ParticleSystem>().main;
+			main.startColor = colorHard;
+		}
+		enemyWall.SetActive(true);
+	}
 
-    public float GetEnemySpeed()
+	public float GetEnemySpeed()
 	{
 		float speed;
-		switch(difficulty)
+		switch (difficulty)
 		{
-            case LEVEL_EASY:
+			case LEVEL_EASY:
 				speed = ENEMY_SPEED_EASY;
-                break;
-            case LEVEL_NORMAL:
-                speed = ENEMY_SPEED_MEDIUM;
-                break;
-            case LEVEL_HARD:
-                speed = ENEMY_SPEED_HARD;
-                break;
-            default:
+				break;
+			case LEVEL_NORMAL:
 				speed = ENEMY_SPEED_MEDIUM;
-                break;
-        }
+				break;
+			case LEVEL_HARD:
+				speed = ENEMY_SPEED_HARD;
+				break;
+			default:
+				speed = ENEMY_SPEED_MEDIUM;
+				break;
+		}
 
 		return speed;
 	}
@@ -478,26 +490,26 @@ public class GameManager : MonoBehaviour
 	public void StartAttackMode(int difficultIndex)
 	{
 		SetGameStartCounter(MODE_ATTACK, difficultIndex);
-        soundController.PlayButtonClick();
-    }
+		soundController.PlayButtonClick();
+	}
 
-    public void StartDefenseMode(int difficultIndex)
-    {
-        SetGameStartCounter(MODE_DEFENSE, difficultIndex);
-        soundController.PlayButtonClick();
-    }
+	public void StartDefenseMode(int difficultIndex)
+	{
+		SetGameStartCounter(MODE_DEFENSE, difficultIndex);
+		soundController.PlayButtonClick();
+	}
 
-    private void SetGameStartCounter(int mode, int difficultIndex)
+	private void SetGameStartCounter(int mode, int difficultIndex)
 	{
 		gameMenuManager.SetStartScreen(false);
-        gameMenuManager.SetSoundOption(false);
-        StartCoroutine(StartCounter(mode, difficultIndex));
+		gameMenuManager.SetSoundOption(false);
+		StartCoroutine(StartCounter(mode, difficultIndex));
 	}
 
 	IEnumerator StartCounter(int mode, int difficultIndex)
 	{
-        yield return new WaitForSeconds(0.7f);
-        TextMeshProUGUI startCounterTextComponent = gameMenuManager.StartCounter.GetComponent<TextMeshProUGUI>();
+		yield return new WaitForSeconds(0.7f);
+		TextMeshProUGUI startCounterTextComponent = gameMenuManager.StartCounter.GetComponent<TextMeshProUGUI>();
 		int count = SEC_COUNT_BEFORE_START;
 		while (count >= 0)
 		{
@@ -512,9 +524,9 @@ public class GameManager : MonoBehaviour
 			soundController.PlayCountSound();
 			yield return new WaitForSeconds(0.7f);
 		}
-        Destroy(gameMenuManager.StartCounter);
-        StartGame(mode, difficultIndex);
-    }
+		Destroy(gameMenuManager.StartCounter);
+		StartGame(mode, difficultIndex);
+	}
 
 	void StartGame(int modeIndex, int difficultIndex)
 	{
@@ -522,28 +534,28 @@ public class GameManager : MonoBehaviour
 		playerSpawnable = true;
 		difficulty = difficultIndex;
 		mode = modeIndex;
-        SetUIInGameByMode();
-    }
+		SetUIInGameByMode();
+	}
 
 	void SetUIInGameByMode()
 	{
-		switch(mode)
+		switch (mode)
 		{
 			case MODE_ATTACK:
-                SetEnemyWall();
+				SetEnemyWall();
 				gameMenuManager.SetInGameScreen(true);
-                playerHPBar.SetActive(true);
+				playerHPBar.SetActive(true);
 				enemyHPBar.SetActive(true);
-                indicator.SetActive(true);
-                spawnInstruction.SetActive(true);
+				indicator.SetActive(true);
+				spawnInstruction.SetActive(true);
 				gaugeInfo.SetActive(true);
 				break;
 			case MODE_DEFENSE:
-                gameMenuManager.SetInGameScreen(true);
-                SetEnemyWall();
-                indicator.SetActive(true);
-                spawnInstruction.SetActive(true);
-                break;
+				gameMenuManager.SetInGameScreen(true);
+				SetEnemyWall();
+				indicator.SetActive(true);
+				spawnInstruction.SetActive(true);
+				break;
 		}
 	}
 	public void SetWinScreen()
@@ -559,27 +571,72 @@ public class GameManager : MonoBehaviour
 
 	private void SetFirework()
 	{
-        Instantiate(firework, fireworkPos, firework.transform.rotation);
-    }
+		Instantiate(firework, fireworkPos, firework.transform.rotation);
+	}
 
-    public int ConvertChainToScore(int perfectChain)
-    {
-        int firstIndex = perfectChain / 10;
-        int secondIndex = perfectChain % 10;
-		if(firstIndex > 0)
+	public void BlockPlayerSpawn()
+	{
+		playerSpawnable = false;
+		indicator.SetActive(false);
+	}
+
+	public int ConvertChainToScore(int perfectChain)
+	{
+		int firstIndex = perfectChain / 10;
+		int secondIndex = perfectChain % 10;
+		if (firstIndex > 0)
 		{
 			firstIndex *= 10;
-        }
+		}
 
-        int baseScore = SCORE_GAIN_TYPE_ADVANTAGE * perfectChain;
+		int baseScore = SCORE_GAIN_TYPE_ADVANTAGE * perfectChain;
 
 		int score = (int)Mathf.Ceil(baseScore * (1.0f + 0.1f * (firstIndex + secondIndex)));
 
 		return score;
-    }
-
-	public void PlayLowHPEffect()
-	{
-
 	}
+
+	public float GetPlayerCurrentRegenRate()
+	{
+		float rate;
+		switch (difficulty)
+		{
+			case LEVEL_EASY:
+				rate = PLAYER_REGEN_RATE_EASY;
+				break;
+			case LEVEL_NORMAL:
+				rate = PLAYER_REGEN_RATE_MEDIUM;
+				break;
+			case LEVEL_HARD:
+				rate = PLAYER_REGEN_RATE_HARD;
+				break;
+			default:
+				rate = PLAYER_REGEN_RATE_EASY;
+				break;
+
+		}
+		return rate;
+	}
+
+    public float GetEnemyCurrentRegenRate()
+    {
+        float rate;
+        switch (difficulty)
+        {
+            case LEVEL_EASY:
+                rate = ENEMY_REGEN_RATE_EASY;
+                break;
+            case LEVEL_NORMAL:
+                rate = ENEMY_REGEN_RATE_MEDIUM;
+                break;
+            case LEVEL_HARD:
+                rate = ENEMY_REGEN_RATE_HARD;
+                break;
+            default:
+                rate = ENEMY_REGEN_RATE_EASY;
+                break;
+
+        }
+        return rate;
+    }
 }

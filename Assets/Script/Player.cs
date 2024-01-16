@@ -29,6 +29,8 @@ public class Player : MonoBehaviour
     private SoundController soundController;
     private GameManager gameManager;
     private BonusGauge bonusGauge;
+    private Wall playerWall;
+    private Player player;
 
     public GameObject curGaugeBar;
 
@@ -52,6 +54,8 @@ public class Player : MonoBehaviour
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         soundController = GameObject.Find("SoundController").GetComponent<SoundController>();
+        playerWall = GameObject.Find("PlayerWall").GetComponent<Wall>();
+        player = GameObject.Find("Player").GetComponent<Player>();
     }
 
     void Update()
@@ -59,8 +63,11 @@ public class Player : MonoBehaviour
         if (IsAttackable() && Input.GetKeyDown(KeyCode.Space))
         {
             IsAttacking = true;
+            gameManager.BlockPlayerSpawn();
             ProcessAttackEnemy();
             ReleaseGaugeBarPower();
+            float regenHP = (Bullet.DAMAGE + player.PerfectChain) * gameManager.GetPlayerCurrentRegenRate();
+            playerWall.RegenHP(regenHP);
         }
     }
 
@@ -95,8 +102,7 @@ public class Player : MonoBehaviour
             curPlayerSpawnPosIndex++;
             if (curPlayerSpawnPosIndex > 2)
             {
-                gameManager.PlayerSpawnable = false;
-                gameManager.indicator.SetActive(false);
+                gameManager.BlockPlayerSpawn();
             }
         }
     }

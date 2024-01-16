@@ -9,6 +9,11 @@ public class BonusGauge : MonoBehaviour
     public TextMeshPro bonusScoreText;
     public GameObject scoreGainPrefab;
 
+    private static Color COLOR_COMBO_SHORT = new Color(0f, 1f, 1f);
+    private static Color COLOR_COMBO_MEDIUM = new Color(1f, 1f, 0f);
+    private static Color COLOR_COMBO_LONG = new Color(1f, 0.5f, 0f);
+
+
     private int curBonus = 3;
     private float speed;
     private bool startColdown = false;
@@ -59,7 +64,6 @@ public class BonusGauge : MonoBehaviour
             startColdown = false;
         }
         UpdateBonusTextAndGaugeColor();
-
     }
 
     void UpdateCurrentBonusScore()
@@ -97,13 +101,13 @@ public class BonusGauge : MonoBehaviour
                 curColor = Color.clear;
                 break;
             case 1:
-                curColor = new Color(0f, 1f, 1f);
+                curColor = COLOR_COMBO_SHORT;
                 break;
             case 2:
-                curColor = new Color(1f, 1f, 0f);
+                curColor = COLOR_COMBO_MEDIUM;
                 break;
             case 3:
-                curColor = new Color(1f, 0.5f, 0f);
+                curColor = COLOR_COMBO_LONG;
                 break;
             default:
                 curColor = Color.clear;

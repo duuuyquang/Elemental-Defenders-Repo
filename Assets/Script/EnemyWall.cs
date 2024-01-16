@@ -14,6 +14,9 @@ public class EnemyWall : MonoBehaviour
     public GameObject explosition;
     public GameObject hpBar;
 
+    private Color defaultHPColor = Color.red;
+    private Color regenHPColor = Color.yellow;
+
     void Start()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
@@ -96,5 +99,28 @@ public class EnemyWall : MonoBehaviour
     {
         Bullet bullet = bulletObj.GetComponent<Bullet>();
         hp = Mathf.Max(hp - bullet.Damage, 0);
+    }
+
+    public void RegenHP(float regenAmount)
+    {
+        StartCoroutine(HpRegenEffect(regenAmount));
+    }
+
+    IEnumerator HpRegenEffect(float regenAmount)
+    {
+        Debug.Log("enemy:" + regenAmount);
+        Material hpBarColor = hpBar.GetComponent<Renderer>().material;
+        hpBarColor.color = regenHPColor;
+        float count = 0;
+        float spf = 1.0f / 60.0f;
+        float upf = regenAmount / 80;
+        while (count < regenAmount)
+        {
+            hp = Mathf.Min(hp + upf, MAX_HP);
+            UpdateHPBar();
+            count += upf;
+            yield return new WaitForSeconds(spf);
+        }
+        hpBarColor.color = defaultHPColor;
     }
 }
