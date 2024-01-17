@@ -29,20 +29,24 @@ public class SoundController: MonoBehaviour
     public AudioSource countSound;
     public AudioSource healingSound;
 
+    private GameMenuManager gameMenuManager;
+
     private bool isBackgroundSoundPlay = false;
-    private int currentThemeSoundIndexedByMode = -1;
+    private int currentThemeSoundIndexedByMode;
 
     public void Start()
     {
         LoadDefaultData();
-
         HandleCurrentThemeSoundStatus();
-
-        GameMenuManager gameMenuManager = GameObject.Find("GameMenuManager").GetComponent<GameMenuManager>();
+        gameMenuManager = GameObject.Find("GameMenuManager").GetComponent<GameMenuManager>();
         gameMenuManager.SetCurrentThemeDropdownVal(currentThemeSoundIndexedByMode);
+        gameMenuManager.SetCurrentBackgroundSoundChecker(isBackgroundSoundPlay);
         if (isBackgroundSoundPlay)
         {
             backgroundSound.Play();
+        } else
+        {
+            backgroundSound.Stop();
         }
     }
 
@@ -126,6 +130,7 @@ public class SoundController: MonoBehaviour
         {
             backgroundSound.Stop();
         }
+        PlayerSetting.toggleBackGroundSound = isBackgroundSoundPlay;
     }
 
     public void ToggleBulletAura(bool isPlay)

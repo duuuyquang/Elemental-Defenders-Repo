@@ -42,9 +42,6 @@ public class Wall : MonoBehaviour
                     ToggleLowHPEffect();
                     gameManager.DisplayCombo(0);
                     player.UpdateGaugeBar(0);
-                    Debug.Log("enemy damage:" + enemy.Damage);
-                    Debug.Log("enemy CurRegenRate:" + gameManager.GetEnemyCurrentRegenRate());
-                    Debug.Log("enemy regenfinal:" + enemy.Damage * gameManager.GetEnemyCurrentRegenRate());
                     enemyWall.RegenHP(enemy.Damage * gameManager.GetEnemyCurrentRegenRate());
                     if (hp <= 0)
                     {

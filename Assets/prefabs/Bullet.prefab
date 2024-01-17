@@ -659,15 +659,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4425129568604114668, guid: bbeeb0ddc21369746aaaae5c5c1c09cf, type: 3}
       propertyPath: InitialModule.startColor.maxColor.b
-      value: 0.1792453
+      value: 0.03773582
       objectReference: {fileID: 0}
     - target: {fileID: 4425129568604114668, guid: bbeeb0ddc21369746aaaae5c5c1c09cf, type: 3}
       propertyPath: InitialModule.startColor.maxColor.g
-      value: 0.036356356
+      value: 0.0026699868
       objectReference: {fileID: 0}
     - target: {fileID: 4425129568604114668, guid: bbeeb0ddc21369746aaaae5c5c1c09cf, type: 3}
       propertyPath: InitialModule.startColor.maxColor.r
-      value: 0.10439027
+      value: 0.019729039
       objectReference: {fileID: 0}
     - target: {fileID: 6687447663895591760, guid: bbeeb0ddc21369746aaaae5c5c1c09cf, type: 3}
       propertyPath: InitialModule.startColor.maxColor.b
