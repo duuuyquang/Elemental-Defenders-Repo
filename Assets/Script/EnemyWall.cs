@@ -108,7 +108,6 @@ public class EnemyWall : MonoBehaviour
 
     IEnumerator HpRegenEffect(float regenAmount)
     {
-        Debug.Log("enemy:" + regenAmount);
         Material hpBarColor = hpBar.GetComponent<Renderer>().material;
         hpBarColor.color = regenHPColor;
         float count = 0;

@@ -14,6 +14,7 @@ public class GameMenuManager : MonoBehaviour
     [SerializeField] private GameObject attackModeLevelButtons;
     [SerializeField] private GameObject defenseModeLevelButtons;
     [SerializeField] private GameObject soundOption;
+    [SerializeField] private GameObject backgroundCheckmark;
 
     [SerializeField] private TextMeshProUGUI startCounter;
     [SerializeField] private TMP_Dropdown themeDropdown;
@@ -78,6 +79,11 @@ public class GameMenuManager : MonoBehaviour
     public void SetCurrentThemeDropdownVal(int value)
     {
         themeDropdown.value = value;
+    }
+
+    public void SetCurrentBackgroundSoundChecker(bool isTurnOn)
+    {
+        backgroundCheckmark.SetActive(isTurnOn);
     }
 
     public void OnClickExit()

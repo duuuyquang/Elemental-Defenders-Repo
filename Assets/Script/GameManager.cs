@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
 	const float ENEMY_SPAWN_DELAY_SEC = 0.4f;
 	const int SEC_COUNT_BEFORE_START = 3;
 
-	const int TIME_LIMIT_SEC = 150;
+	const int TIME_LIMIT_SEC = 120;
 	const int TIMER_DEFAULT_VALUE = -2;
 
 	public const int MODE_ATTACK = 1;
@@ -134,10 +134,10 @@ public class GameManager : MonoBehaviour
 	void Start()
 	{
 		gameMenuManager = GameObject.Find("GameMenuManager").GetComponent<GameMenuManager>();
-		player = GameObject.Find("Player").GetComponent<Player>();
 		soundController = GameObject.Find("SoundController").GetComponent<SoundController>();
-		playerSetting = GameObject.Find("PlayerSetting");
-		timer = TIMER_DEFAULT_VALUE;
+        player = GameObject.Find("Player").GetComponent<Player>();
+        playerSetting = GameObject.Find("PlayerSetting");
+        timer = TIMER_DEFAULT_VALUE;
 	}
 
 	void Update()
@@ -147,9 +147,9 @@ public class GameManager : MonoBehaviour
 			if (GameMode == MODE_ATTACK)
 			{
 				DisplayScore();
-				DisplayTimeText();
 			}
-			UpdateGameByMode();
+            DisplayTimeText();
+            UpdateGameByMode();
 			HandlePlayerInput();
 		}
 
@@ -177,7 +177,7 @@ public class GameManager : MonoBehaviour
 	{
 		if (timer >= 0)
 		{
-			timeText.text = "TimeLeft: " + timer;
+			timeText.text = "Time Left: " + timer;
 		}
 	}
 
@@ -289,7 +289,11 @@ public class GameManager : MonoBehaviour
 				}
 				break;
 			case MODE_DEFENSE:
-				if (enemyNum <= 0)
+                if (timer == TIMER_DEFAULT_VALUE)
+                {
+                    StartTimeColdown();
+                }
+                if (enemyNum <= 0)
 				{
 					RestartPlayerSpawn();
 					SpawnEnemy();
@@ -551,8 +555,8 @@ public class GameManager : MonoBehaviour
 				gaugeInfo.SetActive(true);
 				break;
 			case MODE_DEFENSE:
-				gameMenuManager.SetInGameScreen(true);
-				SetEnemyWall();
+                SetEnemyWall();
+                gameMenuManager.SetInGameScreen(true);
 				indicator.SetActive(true);
 				spawnInstruction.SetActive(true);
 				break;
