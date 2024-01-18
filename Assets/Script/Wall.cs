@@ -4,6 +4,7 @@ using UnityEngine;
 public class Wall : MonoBehaviour
 {
     const float MAX_HP = 100f;
+    const float LOW_HP_RATE = 0.4f;
 
     public GameObject hpBar;
     public GameObject explosion;
@@ -79,7 +80,7 @@ public class Wall : MonoBehaviour
     private void ToggleLowHPEffect()
     {
         float curPercentage = hp / MAX_HP;
-        if (curPercentage < 0.5)
+        if (curPercentage <= LOW_HP_RATE)
         {
             StartCoroutine("LowHPEffect");
         } else

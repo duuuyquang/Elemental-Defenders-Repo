@@ -38,16 +38,18 @@ public class SoundController: MonoBehaviour
     {
         LoadDefaultData();
         HandleCurrentThemeSoundStatus();
-        gameMenuManager = GameObject.Find("GameMenuManager").GetComponent<GameMenuManager>();
-        gameMenuManager.SetCurrentThemeDropdownVal(currentThemeSoundIndexedByMode);
-        gameMenuManager.SetCurrentBackgroundSoundChecker(isBackgroundSoundPlay);
         if (isBackgroundSoundPlay)
         {
             backgroundSound.Play();
-        } else
+        }
+        else
         {
             backgroundSound.Stop();
         }
+
+        gameMenuManager = GameObject.Find("GameMenuManager").GetComponent<GameMenuManager>();
+        gameMenuManager.SetCurrentThemeDropdownVal(currentThemeSoundIndexedByMode);
+        gameMenuManager.SetCurrentBackgroundSoundChecker(isBackgroundSoundPlay);
     }
 
     public void LoadDefaultData()

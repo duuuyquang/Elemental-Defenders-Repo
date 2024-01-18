@@ -153,7 +153,7 @@ MonoBehaviour:
   gloryEffectPrefab: {fileID: 9002604450393199573, guid: 85a687131fcf9ed4da884e80acf9ec77, type: 3}
   scoreGainPrefab: {fileID: 6737950529974387737, guid: 0803184fbea48594aa672b24f9fb21d3, type: 3}
   bonusGainPrefab: {fileID: 8711679641317155397, guid: 73d4a17f5ca2ec744bfbf96c464bb24a, type: 3}
-  bonusScore: 2
+  bonusScore: 4
   elementType: 2
 --- !u!1001 &2412574580459828873
 PrefabInstance:
@@ -175,10 +175,18 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3563135605261703219, guid: cc91c8ba8b9a34f4d99e70d721f60b64, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 2272d8f69a2ec6c4ebfcf751704009cd, type: 2}
     - target: {fileID: 4032917279853956431, guid: cc91c8ba8b9a34f4d99e70d721f60b64, type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5109744584382605848, guid: cc91c8ba8b9a34f4d99e70d721f60b64, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 2272d8f69a2ec6c4ebfcf751704009cd, type: 2}
     - target: {fileID: 6801356123756424196, guid: cc91c8ba8b9a34f4d99e70d721f60b64, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -242,7 +250,7 @@ PrefabInstance:
     - target: {fileID: 7413344840680693326, guid: cc91c8ba8b9a34f4d99e70d721f60b64, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 313328959d631664e996842a34f29f73, type: 2}
+      objectReference: {fileID: 9100000, guid: 187911bbc5e4c1d42a7bf094b5ac6ef6, type: 2}
     - target: {fileID: 7647134206250791342, guid: cc91c8ba8b9a34f4d99e70d721f60b64, type: 3}
       propertyPath: m_Name
       value: WaterSoldier

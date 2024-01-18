@@ -1,9 +1,10 @@
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class BonusGauge : MonoBehaviour
 {
-    const float DELTA_VALUE_SCALE_TO_POS = 1.5f;
+    const float DELTA_VALUE_SCALE_TO_POS = 1.8f; // update this variable to adjust the duration of bonus time - higher = shorter duration
     public float initialScaleX = 3f;
 
     public TextMeshPro bonusScoreText;
@@ -12,6 +13,14 @@ public class BonusGauge : MonoBehaviour
     private static Color COLOR_COMBO_SHORT = new Color(0f, 1f, 1f);
     private static Color COLOR_COMBO_MEDIUM = new Color(1f, 1f, 0f);
     private static Color COLOR_COMBO_LONG = new Color(1f, 0.5f, 0f);
+
+    private const int BONUS_MAX    = 4;
+    private const int BONUS_MEDIUM = 2;
+    private const int BONUS_MIN    = 1;
+
+    private const float RATE_BONUS_MAX     = 0.7f;
+    private const float RATE_BONUS_MEDIUM  = 0.4f;
+    private const float RATE_BONUS_MIN     = 0f;
 
 
     private int curBonus = 3;
@@ -70,17 +79,17 @@ public class BonusGauge : MonoBehaviour
     {
         float currentRate = transform.localScale.x / initialScaleX;
         curBonus = 0;
-        if (currentRate > 0.8f)
+        if (currentRate > RATE_BONUS_MAX)
         {
-            curBonus = 3;
+            curBonus = BONUS_MAX;
         }
-        else if (currentRate > 0.5f)
+        else if (currentRate > RATE_BONUS_MEDIUM)
         {
-            curBonus = 2;
+            curBonus = BONUS_MEDIUM;
         }
-        else if (currentRate > 0f)
+        else if (currentRate > RATE_BONUS_MIN)
         {
-            curBonus = 1;
+            curBonus = BONUS_MIN;
         }
     }
 
@@ -100,13 +109,13 @@ public class BonusGauge : MonoBehaviour
             case 0:
                 curColor = Color.clear;
                 break;
-            case 1:
+            case BONUS_MIN:
                 curColor = COLOR_COMBO_SHORT;
                 break;
-            case 2:
+            case BONUS_MEDIUM:
                 curColor = COLOR_COMBO_MEDIUM;
                 break;
-            case 3:
+            case BONUS_MAX:
                 curColor = COLOR_COMBO_LONG;
                 break;
             default:

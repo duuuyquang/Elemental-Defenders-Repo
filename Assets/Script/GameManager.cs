@@ -138,11 +138,16 @@ public class GameManager : MonoBehaviour
         player = GameObject.Find("Player").GetComponent<Player>();
         playerSetting = GameObject.Find("PlayerSetting");
         timer = TIMER_DEFAULT_VALUE;
-	}
+    }
 
 	void Update()
 	{
-		if (!isGameOver)
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            Debug.Log("shoot");
+            soundController.PlayShootBullet();
+        }
+        if (!isGameOver)
 		{
 			if (GameMode == MODE_ATTACK)
 			{

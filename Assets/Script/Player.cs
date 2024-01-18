@@ -73,14 +73,13 @@ public class Player : MonoBehaviour
 
     private void ProcessAttackEnemy()
     {
-        ShootBullet();
+        ShootBulletWave();
     }
 
     public void SpawnElement(int type)
     {
         if (gameManager.PlayerSpawnable)
         {
-
             int bonusScore = 0;
             if (gameManager.GameMode == GameManager.MODE_ATTACK)
             {
@@ -107,13 +106,18 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void ShootBullet()
+    private void ShootBulletWave()
+    {
+        soundController.ToggleBulletAura(true);
+        ShootBullet(new Vector3(-5, 1, -19));
+        ShootBullet(new Vector3(0, 1, -21));
+        ShootBullet(new Vector3(5, 1, -23));
+    }
+
+    private void ShootBullet(Vector3 position)
     {
         soundController.PlayShootBullet();
-        soundController.ToggleBulletAura(true);
-        Instantiate(bullet, new Vector3(-5, 1, -21), bullet.transform.rotation);
-        Instantiate(bullet, new Vector3(0, 1, -19), bullet.transform.rotation);
-        Instantiate(bullet, new Vector3(5, 1, -21), bullet.transform.rotation);
+        Instantiate(bullet, position, bullet.transform.rotation);
     }
 
     private bool IsAttackable()

@@ -155,7 +155,7 @@ MonoBehaviour:
   gloryEffectPrefab: {fileID: 887018015895451549, guid: 70a05b9a09857fe4a8742bdeb9102a92, type: 3}
   scoreGainPrefab: {fileID: 6737950529974387737, guid: 0803184fbea48594aa672b24f9fb21d3, type: 3}
   bonusGainPrefab: {fileID: 8711679641317155397, guid: 73d4a17f5ca2ec744bfbf96c464bb24a, type: 3}
-  bonusScore: 2
+  bonusScore: 4
   elementType: 3
 --- !u!1001 &344795034000699212
 PrefabInstance:
@@ -287,6 +287,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4066668297557381497, guid: 2dfbb63c9cdf7504faf4ff26b0581598, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ce201fda9bfe6ff4daac48b197bd19b7, type: 2}
     - target: {fileID: 4768647503543977376, guid: 2dfbb63c9cdf7504faf4ff26b0581598, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -378,11 +382,15 @@ PrefabInstance:
     - target: {fileID: 9036980633323257398, guid: 2dfbb63c9cdf7504faf4ff26b0581598, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 313328959d631664e996842a34f29f73, type: 2}
+      objectReference: {fileID: 9100000, guid: 187911bbc5e4c1d42a7bf094b5ac6ef6, type: 2}
     - target: {fileID: 9119583033058523570, guid: 2dfbb63c9cdf7504faf4ff26b0581598, type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 9175385655781485315, guid: 2dfbb63c9cdf7504faf4ff26b0581598, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ce201fda9bfe6ff4daac48b197bd19b7, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
