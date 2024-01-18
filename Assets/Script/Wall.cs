@@ -8,6 +8,7 @@ public class Wall : MonoBehaviour
 
     public GameObject hpBar;
     public GameObject explosion;
+    public GameObject regenEffect;
 
     [SerializeField] private float hp = MAX_HP;
 
@@ -140,6 +141,7 @@ public class Wall : MonoBehaviour
         Material hpBarColor = hpBar.GetComponent<Renderer>().material;
         hpBarColor.color = regenHPColor;
         soundController.PlayHealingSound();
+        regenEffect.SetActive(true);
         float count = 0;
         float spf = 1.0f / 60.0f;
         float upf = regenAmount / 80;

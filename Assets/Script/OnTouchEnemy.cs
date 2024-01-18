@@ -10,7 +10,6 @@ public class OnTouchEnemy : MonoBehaviour
 
     public GameObject explosionPrefab;
     public GameObject gloryEffectPrefab;
-    public GameObject scoreGainPrefab;
     public GameObject bonusGainPrefab;
 
     public int bonusScore;
@@ -130,15 +129,9 @@ public class OnTouchEnemy : MonoBehaviour
         {
             DisplayBonusGain(bonusScore);
         }
-        DisplayScoreGain(score);
+        gameManager.DisplayScoreGain(transform.position, score);
     }
 
-    void DisplayScoreGain(int point)
-    {
-        TextMeshPro text = scoreGainPrefab.GetComponent<TextMeshPro>();
-        text.text = "+" + point;
-        Instantiate(scoreGainPrefab, transform.position, scoreGainPrefab.transform.rotation);
-    }
     void DisplayBonusGain(int point)
     {
         TextMeshPro text = bonusGainPrefab.GetComponent<TextMeshPro>();

@@ -54,7 +54,7 @@ public class GameManager : MonoBehaviour
 	const int COMBO_MEDIUM = 7;
 	const int COMBO_LONG = 10;
 
-	const int COMBO_TEXT_BEGIN = 25;
+	const int COMBO_TEXT_BEGIN = 15;
 	const int COMBO_TEXT_INCREASE_STEP = 2;
 
 	public GameObject[] enemiesPrefabs;
@@ -65,10 +65,11 @@ public class GameManager : MonoBehaviour
 	public GameObject firework;
 	public GameObject gaugeInfo;
 	public GameObject spawnInstruction;
+    public GameObject scoreGainPrefab;
 
-	public TextMeshProUGUI scoreText;
-	public TextMeshProUGUI chainText;
-	public TextMeshProUGUI chainScoreText;
+    public TextMeshPro scoreText;
+	public TextMeshPro comboText;
+	public TextMeshPro comboScoreText;
 	public TextMeshProUGUI timeText;
 
 	private GameMenuManager gameMenuManager;
@@ -137,6 +138,9 @@ public class GameManager : MonoBehaviour
 		soundController = GameObject.Find("SoundController").GetComponent<SoundController>();
         player = GameObject.Find("Player").GetComponent<Player>();
         playerSetting = GameObject.Find("PlayerSetting");
+        comboText = GameObject.Find("ComboText").GetComponent<TextMeshPro>();
+		scoreText = GameObject.Find("ScoreText").GetComponent<TextMeshPro>();
+        comboScoreText = GameObject.Find("ComboScoreText").GetComponent<TextMeshPro>();
         timer = TIMER_DEFAULT_VALUE;
     }
 
@@ -210,42 +214,42 @@ public class GameManager : MonoBehaviour
 	public void DisplayScore()
 	{
 		scoreText.text = "Score: " + score;
-	}
+    }
 
 	public void DisplayCombo(int combo)
 	{
 		player.PerfectChain = combo;
 		if (combo < COMBO_BEGIN)
 		{
-			chainText.fontSize = COMBO_TEXT_BEGIN;
-			chainText.color = Color.white;
-			chainText.text = "";
+            comboText.fontSize = COMBO_TEXT_BEGIN;
+            comboText.color = Color.white;
+            comboText.text = "";
 			DisplayComboScore(0);
 			return;
 		}
 		else if (combo < COMBO_SHORT)
 		{
-			chainText.color = Color.cyan;
+            comboText.color = Color.cyan;
 		}
 		else if (combo < COMBO_MEDIUM)
 		{
-			chainText.color = Color.green;
+            comboText.color = Color.green;
 		}
 		else if (combo < COMBO_LONG)
 		{
-			chainText.color = Color.red;
+            comboText.color = Color.red;
 		}
 		else
 		{
-			chainText.color = Color.magenta;
+            comboText.color = Color.magenta;
 		}
 
 
 		if (combo <= COMBO_LONG)
 		{
-			chainText.fontSize += COMBO_TEXT_INCREASE_STEP;
+            comboText.fontSize += COMBO_TEXT_INCREASE_STEP;
 		}
-		chainText.text = "Combo x" + combo;
+        comboText.text = "Combo x" + combo;
 		DisplayComboScore(combo);
 	}
 
@@ -257,8 +261,8 @@ public class GameManager : MonoBehaviour
 		{
 			displayText = "+" + score;
 		}
-		chainScoreText.text = displayText;
-		chainScoreText.color = Color.yellow;
+        comboScoreText.text = displayText;
+        comboScoreText.color = Color.yellow;
 	}
 
 	public void ResetChain()
@@ -647,5 +651,27 @@ public class GameManager : MonoBehaviour
 
         }
         return rate;
+    }
+
+    public void DisplayScoreGain(Vector3 position, int point)
+    {
+        TextMeshPro text = scoreGainPrefab.GetComponent<TextMeshPro>();
+        text.text = "+" + point;
+        Instantiate(scoreGainPrefab, position, scoreGainPrefab.transform.rotation);
+        BouncyScoreTextEffect();
+    }
+
+    public void BouncyScoreTextEffect()
+	{
+		StartCoroutine(TextBouncyEffect(scoreText));
+	}
+
+    IEnumerator TextBouncyEffect(TextMeshPro text)
+    {
+        text.fontSize += 4;
+		yield return new WaitForSeconds(0.05f);
+        text.fontSize -= 2;
+        yield return new WaitForSeconds(0.05f);
+        text.fontSize -= 2;
     }
 }

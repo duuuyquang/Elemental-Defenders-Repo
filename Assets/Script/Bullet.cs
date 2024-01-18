@@ -1,12 +1,12 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class Bullet : MonoBehaviour
 {
     public float speed;
     public const float DAMAGE = 10f;
     public GameObject explosion;
-    public GameObject scoreGainPrefab;
 
     private GameManager gameManager;
     private Player player;
@@ -48,7 +48,7 @@ public class Bullet : MonoBehaviour
                 int score = gameManager.ConvertChainToScore(player.PerfectChain);
                 gameManager.DisplayCombo(0);
                 gameManager.Score += score;
-                DisplayScoreGain(score);
+                gameManager.DisplayScoreGain(transform.position, score);
             }
         }
     }
@@ -58,14 +58,7 @@ public class Bullet : MonoBehaviour
         if(collision.gameObject.CompareTag("Enemy"))
         {
             gameManager.Score += GameManager.SCORE_GAIN_TYPE_ADVANTAGE;
-            DisplayScoreGain(GameManager.SCORE_GAIN_TYPE_ADVANTAGE);
+            gameManager.DisplayScoreGain(transform.position, GameManager.SCORE_GAIN_TYPE_ADVANTAGE);
         }
-    }
-
-    void DisplayScoreGain(int point)
-    {
-        TextMeshPro text = scoreGainPrefab.GetComponent<TextMeshPro>();
-        text.text = "+" + point;
-        Instantiate(scoreGainPrefab, transform.position, scoreGainPrefab.transform.rotation);
     }
 }
