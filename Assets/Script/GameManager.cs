@@ -66,10 +66,8 @@ public class GameManager : MonoBehaviour
 	public GameObject gaugeInfo;
 	public GameObject spawnInstruction;
     public GameObject scoreGainPrefab;
+	public GameObject highComboPartical;
 
-    public TextMeshPro scoreText;
-	public TextMeshPro comboText;
-	public TextMeshPro comboScoreText;
 	public TextMeshProUGUI timeText;
 
 	private GameMenuManager gameMenuManager;
@@ -91,7 +89,11 @@ public class GameManager : MonoBehaviour
 		new Vector3( 6, 0, ENEMY_SPAWN_POS_Z)
 	};
 
-	private bool playerSpawnable = false;
+    private TextMeshPro scoreText;
+    private TextMeshPro comboText;
+    private TextMeshPro comboScoreText;
+
+    private bool playerSpawnable = false;
 	private bool isGameOver = true;
 	private int difficulty;
 	private int mode;
@@ -146,11 +148,6 @@ public class GameManager : MonoBehaviour
 
 	void Update()
 	{
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            Debug.Log("shoot");
-            soundController.PlayShootBullet();
-        }
         if (!isGameOver)
 		{
 			if (GameMode == MODE_ATTACK)
@@ -193,11 +190,13 @@ public class GameManager : MonoBehaviour
 	void PauseGame()
 	{
 		Time.timeScale = 0;
-	}
+		Enemy.ToggleDisplayAllEnemyUnit(false);
+    }
 	void ResumeGame()
 	{
 		Time.timeScale = 1;
-	}
+        Enemy.ToggleDisplayAllEnemyUnit(true);
+    }
 
 	void TimerColdown()
 	{
@@ -241,15 +240,17 @@ public class GameManager : MonoBehaviour
 		}
 		else
 		{
-            comboText.color = Color.magenta;
-		}
+			comboText.color = Color.magenta;
+            highComboPartical.SetActive(false);
+            highComboPartical.SetActive(true);
+        }
 
 
 		if (combo <= COMBO_LONG)
 		{
             comboText.fontSize += COMBO_TEXT_INCREASE_STEP;
 		}
-        comboText.text = "Combo x" + combo;
+		comboText.text = "Combo x" + combo;
 		DisplayComboScore(combo);
 	}
 
@@ -397,7 +398,7 @@ public class GameManager : MonoBehaviour
 			int randomIndex = Random.Range(0, enemiesPrefabs.Length);
 			Instantiate(
 				enemiesPrefabs[randomIndex],
-				enemySpawnPos[i] + new Vector3(0, enemiesPrefabs[randomIndex].transform.position.y, 0),
+				enemySpawnPos[i],
 				enemiesPrefabs[randomIndex].transform.rotation);
 			yield return new WaitForSeconds(seconds);
 		}
@@ -626,7 +627,6 @@ public class GameManager : MonoBehaviour
 			default:
 				rate = PLAYER_REGEN_RATE_EASY;
 				break;
-
 		}
 		return rate;
 	}
@@ -648,7 +648,6 @@ public class GameManager : MonoBehaviour
             default:
                 rate = ENEMY_REGEN_RATE_EASY;
                 break;
-
         }
         return rate;
     }
@@ -667,11 +666,14 @@ public class GameManager : MonoBehaviour
 	}
 
     IEnumerator TextBouncyEffect(TextMeshPro text)
-    {
-        text.fontSize += 4;
-		yield return new WaitForSeconds(0.05f);
-        text.fontSize -= 2;
-        yield return new WaitForSeconds(0.05f);
-        text.fontSize -= 2;
+	{
+		int upSize = 4;
+		text.fontSize += upSize;
+		while(upSize > 0)
+		{
+            yield return new WaitForSeconds(0.01f);
+			text.fontSize--;
+			upSize--;
+        }
     }
 }

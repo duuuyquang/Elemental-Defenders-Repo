@@ -9,6 +9,7 @@ public class Enemy : MonoBehaviour
 
     private GameManager gameManager;
     private Element element;
+    private static GameObject[] cacheAllEnemyObjects = new GameObject[] {};
 
     public int ElementType
     {
@@ -99,11 +100,30 @@ public class Enemy : MonoBehaviour
 
     public static void ClearAllEnemyUnit()
     {
-        GameObject[] enemyObjects = GameObject.FindGameObjectsWithTag("Enemy");
-        foreach (GameObject enemyObject in enemyObjects)
+        cacheAllEnemyObjects = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject enemyObject in cacheAllEnemyObjects)
         {
             var enemyUnit = enemyObject.GetComponent<Enemy>();
             enemyUnit.TriggerExplosion();
+        }
+    }
+
+    public static void ToggleDisplayAllEnemyUnit(bool isShow)
+    {
+        cacheAllEnemyObjects = GameObject.FindGameObjectsWithTag("Enemy");
+        bool isDisable = false;
+        float posY = 0;
+        if ( !isShow )
+        {
+            posY = -5;
+            isDisable = true;
+        }
+        foreach (GameObject enemyObject in cacheAllEnemyObjects)
+        {
+            float x = enemyObject.transform.position.x;
+            float z = enemyObject.transform.position.z;
+            enemyObject.transform.position = new Vector3(x, posY, z);
+            enemyObject.transform.GetChild(0).gameObject.SetActive(isDisable);
         }
     }
 }

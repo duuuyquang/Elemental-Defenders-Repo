@@ -5,6 +5,8 @@ public class Player : MonoBehaviour
 {
     const float MAX_GAUGE = 100f;
     const float PLAYER_SPAWN_POS_Z = 17;
+    const int NUM_BULLET_PER_SHOOT = 3;
+    const int SHIFT_BULLET_POS_X = 5;
 
     public GameObject[] playerPrefabs;
     public GameObject bullet;
@@ -109,9 +111,20 @@ public class Player : MonoBehaviour
     private void ShootBulletWave()
     {
         soundController.ToggleBulletAura(true);
-        ShootBullet(new Vector3(-5, 1, -19));
-        ShootBullet(new Vector3(0, 1, -21));
-        ShootBullet(new Vector3(5, 1, -23));
+        StartCoroutine(ShootBulletEach());
+    }
+
+    IEnumerator ShootBulletEach()
+    {
+        int count = NUM_BULLET_PER_SHOOT;
+        int initalPosX = -SHIFT_BULLET_POS_X;
+        while (count > 0)
+        {
+            ShootBullet(new Vector3(initalPosX, 1, -21));
+            initalPosX += SHIFT_BULLET_POS_X;
+            count--;
+            yield return new WaitForSeconds(0.1f);
+        }
     }
 
     private void ShootBullet(Vector3 position)
