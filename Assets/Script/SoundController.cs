@@ -3,9 +3,9 @@ using UnityEngine.UI;
 
 public class SoundController: MonoBehaviour
 {
-    public const int TYPE_STRONGER  = 1;
-    public const int TYPE_SAME      = 2;
-    public const int TYPE_WEAKER    = 3;
+    public const int TYPE_STRONGER    = 3;
+    public const int TYPE_SAME        = 2;
+    public const int TYPE_WEAKER      = 1;
 
     public const int TYPE_PLAYER_WALL   = 1;
     public const int TYPE_ENEMY_WALL    = 2;
@@ -14,7 +14,10 @@ public class SoundController: MonoBehaviour
     public const int THEME_MUSIC_UNIVERSE   = 1;
     public const int THEME_MUSIC_BATTLE     = 2;
 
-    public AudioSource typeStronger;
+    public AudioSource typeStrongerComboBegin;
+    public AudioSource typeStrongerComboShort;
+    public AudioSource typeStrongerComboMedium;
+    public AudioSource typeStrongerComboLong;
     public AudioSource typeSame;
     public AudioSource typeWeaker;
     public AudioSource playerWallExplosion;
@@ -30,6 +33,7 @@ public class SoundController: MonoBehaviour
     public AudioSource healingSound;
 
     private GameMenuManager gameMenuManager;
+    private Player player;
 
     private bool isBackgroundSoundPlay = false;
     private int currentThemeSoundIndexedByMode;
@@ -46,7 +50,7 @@ public class SoundController: MonoBehaviour
         {
             backgroundSound.Stop();
         }
-
+        player = GameObject.Find("Player").GetComponent<Player>();
         gameMenuManager = GameObject.Find("GameMenuManager").GetComponent<GameMenuManager>();
         gameMenuManager.SetCurrentThemeDropdownVal(currentThemeSoundIndexedByMode);
         gameMenuManager.SetCurrentBackgroundSoundChecker(isBackgroundSoundPlay);
@@ -63,7 +67,22 @@ public class SoundController: MonoBehaviour
         switch (type)
         {
             case TYPE_STRONGER:
-                typeStronger.Play();
+                if (player.PerfectChain < GameManager.COMBO_SHORT)
+                {
+                    typeStrongerComboBegin.Play();
+                }
+                else if (player.PerfectChain < GameManager.COMBO_MEDIUM)
+                {
+                    typeStrongerComboShort.Play();
+                }
+                else if (player.PerfectChain < GameManager.COMBO_LONG)
+                {
+                    typeStrongerComboMedium.Play();
+                }
+                else
+                {
+                    typeStrongerComboLong.Play();
+                }
                 break;
             case TYPE_SAME:
                 typeSame.Play();

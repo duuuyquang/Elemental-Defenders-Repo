@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -49,13 +50,13 @@ public class GameManager : MonoBehaviour
 
 	public const int SEC_DELAY_AFTER_SHOOT = 3;
 
-	const int COMBO_BEGIN = 1;
-	const int COMBO_SHORT = 4;
-	const int COMBO_MEDIUM = 7;
-	const int COMBO_LONG = 10;
+	public const int COMBO_BEGIN = 1;
+    public const int COMBO_SHORT = 4;
+    public const int COMBO_MEDIUM = 7;
+    public const int COMBO_LONG = 10;
 
 	const int COMBO_TEXT_BEGIN = 15;
-	const int COMBO_TEXT_INCREASE_STEP = 2;
+	const int COMBO_TEXT_INCREASE_STEP = 1;
 
 	public GameObject[] enemiesPrefabs;
 	public GameObject indicator;
@@ -65,7 +66,7 @@ public class GameManager : MonoBehaviour
 	public GameObject firework;
 	public GameObject gaugeInfo;
 	public GameObject spawnInstruction;
-    public GameObject scoreGainPrefab;
+	public GameObject scoreGainPrefab;
 	public GameObject highComboPartical;
 
 	public TextMeshProUGUI timeText;
@@ -89,11 +90,11 @@ public class GameManager : MonoBehaviour
 		new Vector3( 6, 0, ENEMY_SPAWN_POS_Z)
 	};
 
-    private TextMeshPro scoreText;
-    private TextMeshPro comboText;
-    private TextMeshPro comboScoreText;
+	private TextMeshPro scoreText;
+	private TextMeshPro comboText;
+	private TextMeshPro comboScoreText;
 
-    private bool playerSpawnable = false;
+	private bool playerSpawnable = false;
 	private bool isGameOver = true;
 	private int difficulty;
 	private int mode;
@@ -138,13 +139,13 @@ public class GameManager : MonoBehaviour
 	{
 		gameMenuManager = GameObject.Find("GameMenuManager").GetComponent<GameMenuManager>();
 		soundController = GameObject.Find("SoundController").GetComponent<SoundController>();
-        player = GameObject.Find("Player").GetComponent<Player>();
-        playerSetting = GameObject.Find("PlayerSetting");
-        comboText = GameObject.Find("ComboText").GetComponent<TextMeshPro>();
+		player = GameObject.Find("Player").GetComponent<Player>();
+		playerSetting = GameObject.Find("PlayerSetting");
+		comboText = GameObject.Find("ComboText").GetComponent<TextMeshPro>();
 		scoreText = GameObject.Find("ScoreText").GetComponent<TextMeshPro>();
-        comboScoreText = GameObject.Find("ComboScoreText").GetComponent<TextMeshPro>();
-        timer = TIMER_DEFAULT_VALUE;
-    }
+		comboScoreText = GameObject.Find("ComboScoreText").GetComponent<TextMeshPro>();
+		timer = TIMER_DEFAULT_VALUE;
+	}
 
 	void Update()
 	{
@@ -154,8 +155,8 @@ public class GameManager : MonoBehaviour
 			{
 				DisplayScore();
 			}
-            DisplayTimeText();
-            UpdateGameByMode();
+			DisplayTimeText();
+			UpdateGameByMode();
 			HandlePlayerInput();
 		}
 
@@ -191,12 +192,12 @@ public class GameManager : MonoBehaviour
 	{
 		Time.timeScale = 0;
 		Enemy.ToggleDisplayAllEnemyUnit(false);
-    }
+	}
 	void ResumeGame()
 	{
 		Time.timeScale = 1;
-        Enemy.ToggleDisplayAllEnemyUnit(true);
-    }
+		Enemy.ToggleDisplayAllEnemyUnit(true);
+	}
 
 	void TimerColdown()
 	{
@@ -213,45 +214,46 @@ public class GameManager : MonoBehaviour
 	public void DisplayScore()
 	{
 		scoreText.text = "Score: " + score;
-    }
+	}
 
 	public void DisplayCombo(int combo)
 	{
 		player.PerfectChain = combo;
 		if (combo < COMBO_BEGIN)
 		{
-            comboText.fontSize = COMBO_TEXT_BEGIN;
-            comboText.color = Color.white;
-            comboText.text = "";
+			comboText.fontSize = COMBO_TEXT_BEGIN;
+			comboText.color = Color.white;
+			comboText.text = "";
 			DisplayComboScore(0);
 			return;
 		}
 		else if (combo < COMBO_SHORT)
 		{
-            comboText.color = Color.cyan;
+			comboText.color = Color.cyan;
 		}
 		else if (combo < COMBO_MEDIUM)
 		{
-            comboText.color = Color.green;
+			comboText.color = Color.green;
 		}
 		else if (combo < COMBO_LONG)
 		{
-            comboText.color = Color.red;
+			comboText.color = Color.red;
 		}
 		else
 		{
 			comboText.color = Color.magenta;
-            highComboPartical.SetActive(false);
-            highComboPartical.SetActive(true);
-        }
+			highComboPartical.SetActive(false);
+			highComboPartical.SetActive(true);
+		}
 
 
 		if (combo <= COMBO_LONG)
 		{
-            comboText.fontSize += COMBO_TEXT_INCREASE_STEP;
+			comboText.fontSize += COMBO_TEXT_INCREASE_STEP;
 		}
 		comboText.text = "Combo x" + combo;
-		DisplayComboScore(combo);
+        BouncyComboTextEffect();
+        DisplayComboScore(combo);
 	}
 
 	public void DisplayComboScore(int chain)
@@ -262,9 +264,9 @@ public class GameManager : MonoBehaviour
 		{
 			displayText = "+" + score;
 		}
-        comboScoreText.text = displayText;
-        comboScoreText.color = Color.yellow;
-	}
+		comboScoreText.text = displayText;
+		comboScoreText.color = Color.yellow;
+    }
 
 	public void ResetChain()
 	{
@@ -299,11 +301,11 @@ public class GameManager : MonoBehaviour
 				}
 				break;
 			case MODE_DEFENSE:
-                if (timer == TIMER_DEFAULT_VALUE)
-                {
-                    StartTimeColdown();
-                }
-                if (enemyNum <= 0)
+				if (timer == TIMER_DEFAULT_VALUE)
+				{
+					StartTimeColdown();
+				}
+				if (enemyNum <= 0)
 				{
 					RestartPlayerSpawn();
 					SpawnEnemy();
@@ -565,8 +567,8 @@ public class GameManager : MonoBehaviour
 				gaugeInfo.SetActive(true);
 				break;
 			case MODE_DEFENSE:
-                SetEnemyWall();
-                gameMenuManager.SetInGameScreen(true);
+				SetEnemyWall();
+				gameMenuManager.SetInGameScreen(true);
 				indicator.SetActive(true);
 				spawnInstruction.SetActive(true);
 				break;
@@ -631,39 +633,79 @@ public class GameManager : MonoBehaviour
 		return rate;
 	}
 
-    public float GetEnemyCurrentRegenRate()
-    {
-        float rate;
-        switch (difficulty)
-        {
-            case LEVEL_EASY:
-                rate = ENEMY_REGEN_RATE_EASY;
-                break;
-            case LEVEL_NORMAL:
-                rate = ENEMY_REGEN_RATE_MEDIUM;
-                break;
-            case LEVEL_HARD:
-                rate = ENEMY_REGEN_RATE_HARD;
-                break;
-            default:
-                rate = ENEMY_REGEN_RATE_EASY;
-                break;
-        }
-        return rate;
+	public float GetEnemyCurrentRegenRate()
+	{
+		float rate;
+		switch (difficulty)
+		{
+			case LEVEL_EASY:
+				rate = ENEMY_REGEN_RATE_EASY;
+				break;
+			case LEVEL_NORMAL:
+				rate = ENEMY_REGEN_RATE_MEDIUM;
+				break;
+			case LEVEL_HARD:
+				rate = ENEMY_REGEN_RATE_HARD;
+				break;
+			default:
+				rate = ENEMY_REGEN_RATE_EASY;
+				break;
+		}
+		return rate;
+	}
+
+	public void DisplayScoreGain(Vector3 position, int point)
+	{
+		TextMeshPro text = scoreGainPrefab.GetComponent<TextMeshPro>();
+		text.text = "+" + point;
+		Instantiate(scoreGainPrefab, position, scoreGainPrefab.transform.rotation);
+		//BouncyScoreTextEffect();
+        JumpScoreEffect(point);
     }
 
-    public void DisplayScoreGain(Vector3 position, int point)
-    {
-        TextMeshPro text = scoreGainPrefab.GetComponent<TextMeshPro>();
-        text.text = "+" + point;
-        Instantiate(scoreGainPrefab, position, scoreGainPrefab.transform.rotation);
-        BouncyScoreTextEffect();
-    }
-
-    public void BouncyScoreTextEffect()
+	public void BouncyScoreTextEffect()
 	{
 		StartCoroutine(TextBouncyEffect(scoreText));
 	}
+
+	public void BouncyComboTextEffect()
+	{
+		StartCoroutine(TextBouncyEffect(comboText));
+	}
+
+	public void JumpScoreEffect(int point)
+	{
+		StartCoroutine(JumpNumberAnimation(point));
+	}
+
+	IEnumerator JumpNumberAnimation(int point)
+	{
+        if (score < point)
+        {
+            yield return false;
+        }
+
+        int addNum = point;
+		int minusStep = 1;
+		if(point > 100)
+		{
+			addNum = 100;
+        }
+
+		if(point <= 10 && score > 9 )
+		{
+			addNum = 9;
+		}
+
+        score -= addNum;
+
+        while (addNum > 0)
+		{
+            score += minusStep;
+            addNum -= minusStep;
+			yield return new WaitForNextFrameUnit();
+        }
+    }
 
     IEnumerator TextBouncyEffect(TextMeshPro text)
 	{
@@ -671,8 +713,8 @@ public class GameManager : MonoBehaviour
 		text.fontSize += upSize;
 		while(upSize > 0)
 		{
-            yield return new WaitForSeconds(0.01f);
-			text.fontSize--;
+            yield return new WaitForNextFrameUnit();
+            text.fontSize--;
 			upSize--;
         }
     }
