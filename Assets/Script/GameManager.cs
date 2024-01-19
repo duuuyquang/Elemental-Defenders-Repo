@@ -48,7 +48,7 @@ public class GameManager : MonoBehaviour
 	public const float GAUGE_POINT_ADVANTAGE = 10f;
 	public const float GAUGE_POINT_SAME = 3f;
 
-	public const int SEC_DELAY_AFTER_SHOOT = 3;
+	public const int SEC_DELAY_AFTER_SHOOT = 2;
 
 	public const int COMBO_BEGIN = 1;
     public const int COMBO_SHORT = 4;
