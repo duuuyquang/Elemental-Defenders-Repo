@@ -39,6 +39,7 @@ public class GameManager : MonoBehaviour
 
 	public const int MODE_ATTACK = 1;
 	public const int MODE_DEFENSE = 2;
+	public const int MODE_ENDLESS = 3;
 
 	public const int SCORE_GAIN_TYPE_ADVANTAGE = 3;
 	public const int SCORE_GAIN_TYPE_SAME = 1;
@@ -151,10 +152,7 @@ public class GameManager : MonoBehaviour
 	{
         if (!isGameOver)
 		{
-			if (GameMode == MODE_ATTACK)
-			{
-				DisplayScore();
-			}
+			DisplayScore();
 			DisplayTimeText();
 			UpdateGameByMode();
 			HandlePlayerInput();
@@ -213,7 +211,11 @@ public class GameManager : MonoBehaviour
 
 	public void DisplayScore()
 	{
-		scoreText.text = "Score: " + score;
+        scoreText.text = "Score: " + score;
+        if (mode == MODE_DEFENSE )
+		{
+			scoreText.text = "";
+		}
 	}
 
 	public void DisplayCombo(int combo)
@@ -312,7 +314,14 @@ public class GameManager : MonoBehaviour
 					ShiftPlayerPos();
 				}
 				break;
-			default:
+            case MODE_ENDLESS:
+                if (enemyNum <= 0 && !player.IsAttacking)
+                {
+                    RestartPlayerSpawn();
+                    SpawnEnemy();
+                }
+                break;
+            default:
 				return;
 		}
 	}
@@ -361,6 +370,7 @@ public class GameManager : MonoBehaviour
 		switch (mode)
 		{
 			case MODE_ATTACK:
+			case MODE_ENDLESS:
 				if (!bonusGauge)
 				{
 					bonusGauge = GameObject.Find("BonusGauge").GetComponent<BonusGauge>();
@@ -447,38 +457,38 @@ public class GameManager : MonoBehaviour
 
 	void SetEnemyWall()
 	{
-		if (mode == MODE_DEFENSE)
+        var main = enemyWall.transform.GetComponentInChildren<ParticleSystem>().main;
+        switch (mode)
 		{
-			Color wallColor;
-			switch (difficulty)
-			{
-				case LEVEL_EASY:
-					enemyWall.transform.position = new Vector3(0, 0, -SHIFT_PLAYER_POS_Y * 2);
-					wallColor = colorEasy;
-					break;
-				case LEVEL_NORMAL:
-					enemyWall.transform.position = new Vector3(0, 0, 0);
-					wallColor = colorNormal;
-					break;
-				case LEVEL_HARD:
-					enemyWall.transform.position = new Vector3(0, 0, SHIFT_PLAYER_POS_Y * 2);
-					wallColor = colorHard;
-					break;
-				default:
-					enemyWall.transform.position = new Vector3(0, 0, 0);
-					wallColor = colorNormal;
-					break;
-			}
-			var main = enemyWall.transform.GetComponentInChildren<ParticleSystem>().main;
-			main.startColor = wallColor;
+			case MODE_DEFENSE:
+                Color wallColor;
+                switch (difficulty)
+                {
+                    case LEVEL_EASY:
+                        enemyWall.transform.position = new Vector3(0, 0, -SHIFT_PLAYER_POS_Y * 2);
+                        wallColor = colorEasy;
+                        break;
+                    case LEVEL_NORMAL:
+                        enemyWall.transform.position = new Vector3(0, 0, 0);
+                        wallColor = colorNormal;
+                        break;
+                    case LEVEL_HARD:
+                        enemyWall.transform.position = new Vector3(0, 0, SHIFT_PLAYER_POS_Y * 2);
+                        wallColor = colorHard;
+                        break;
+                    default:
+                        enemyWall.transform.position = new Vector3(0, 0, 0);
+                        wallColor = colorNormal;
+                        break;
+                }
+                main.startColor = wallColor;
+                break;
+			case MODE_ATTACK:
+            case MODE_ENDLESS:
+                enemyWall.transform.position = new Vector3(0, 0, 11.5f);
+                main.startColor = colorHard;
+                break;
 		}
-		else if (mode == MODE_ATTACK)
-		{
-			enemyWall.transform.position = new Vector3(0, 0, 13);
-			var main = enemyWall.transform.GetComponentInChildren<ParticleSystem>().main;
-			main.startColor = colorHard;
-		}
-		enemyWall.SetActive(true);
 	}
 
 	public float GetEnemySpeed()
@@ -502,6 +512,12 @@ public class GameManager : MonoBehaviour
 
 		return speed;
 	}
+
+	public void StartEndlessMode()
+	{
+        SetGameStartCounter(MODE_ENDLESS, LEVEL_EASY); // always start at easy
+        soundController.PlayButtonClick();
+    }
 
 	public void StartAttackMode(int difficultIndex)
 	{
@@ -572,6 +588,14 @@ public class GameManager : MonoBehaviour
 				indicator.SetActive(true);
 				spawnInstruction.SetActive(true);
 				break;
+			case MODE_ENDLESS:
+                SetEnemyWall();
+                gameMenuManager.SetInGameScreen(true);
+                playerHPBar.SetActive(true);
+                indicator.SetActive(true);
+                spawnInstruction.SetActive(true);
+                gaugeInfo.SetActive(true);
+                break;
 		}
 	}
 	public void SetWinScreen()
@@ -675,10 +699,10 @@ public class GameManager : MonoBehaviour
 
 	public void JumpScoreEffect(int point)
 	{
-		StartCoroutine(JumpNumberAnimation(point));
+		StartCoroutine(ScoreIncreasingAnimation(point));
 	}
 
-	IEnumerator JumpNumberAnimation(int point)
+	IEnumerator ScoreIncreasingAnimation(int point)
 	{
         if (score < point)
         {

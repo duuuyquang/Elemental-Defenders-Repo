@@ -4,9 +4,13 @@ using UnityEngine;
 
 public class OnTouchEnemy : MonoBehaviour
 {
+    const float SPEED_DEFENSE = 0f;
+    const float SPEED_ATTACK = 10f;
+    const float SPEED_ENDELSS = 10f;
+
     private Element element;
 
-    [SerializeField] private float speed = 10f;
+    private float speed;
 
     public GameObject explosionPrefab;
     public GameObject gloryEffectPrefab;
@@ -27,6 +31,7 @@ public class OnTouchEnemy : MonoBehaviour
         soundController = GameObject.Find("SoundController").GetComponent<SoundController>();
         player = GameObject.Find("Player").GetComponent<Player>();
         animator = gameObject.GetComponentInChildren<Animator>();
+        SetSpeedByGameMode();
 
         switch (elementType)
         {
@@ -47,12 +52,25 @@ public class OnTouchEnemy : MonoBehaviour
         }
     }
 
+    private void SetSpeedByGameMode()
+    {
+        switch(gameManager.GameMode)
+        {
+            case GameManager.MODE_DEFENSE:
+                speed = SPEED_DEFENSE;
+                break;
+            case GameManager.MODE_ATTACK:
+                speed = SPEED_ATTACK;
+                break;
+            case GameManager.MODE_ENDLESS:
+                speed = SPEED_ENDELSS;
+                break;
+        }
+    }
+
     private void Update()
     {
-        if(gameManager.GameMode == GameManager.MODE_ATTACK)
-        {
-            transform.Translate(Vector3.forward * Time.deltaTime * speed);
-        }
+        transform.Translate(Vector3.forward * Time.deltaTime * speed);
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -87,6 +105,7 @@ public class OnTouchEnemy : MonoBehaviour
                 break;
 
             case GameManager.MODE_ATTACK:
+            case GameManager.MODE_ENDLESS:
                 if (element.GetTypeAdvantage(enemyEleType) == Element.TYPE_STRONGER)
                 {
                     gameManager.Score += GameManager.SCORE_GAIN_TYPE_ADVANTAGE + bonusScore;

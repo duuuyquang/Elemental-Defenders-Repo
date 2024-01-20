@@ -34,6 +34,7 @@ public class EnemyWall : MonoBehaviour
         switch (gameManager.GameMode)
         {
             case GameManager.MODE_ATTACK:
+            case GameManager.MODE_ENDLESS:
                 if (otherObj.CompareTag("Bullet"))
                 {
                     ProcessExplosion(otherObj);

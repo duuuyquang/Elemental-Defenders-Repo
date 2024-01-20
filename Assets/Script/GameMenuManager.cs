@@ -20,6 +20,7 @@ public class GameMenuManager : MonoBehaviour
     [SerializeField] private TMP_Dropdown themeDropdown;
 
     SoundController soundController;
+    GameManager gameManager;
 
     public TextMeshProUGUI StartCounter {
         get { return startCounter; }
@@ -28,6 +29,7 @@ public class GameMenuManager : MonoBehaviour
     private void Start()
     {
         soundController = GameObject.Find("SoundController").GetComponent<SoundController>();
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
     public void SetPauseScreen(bool status)
@@ -72,6 +74,9 @@ public class GameMenuManager : MonoBehaviour
                 break;
             case GameManager.MODE_DEFENSE:
                 SetDefenseModeLevelButtons(true);
+                break;
+            case GameManager.MODE_ENDLESS:
+                gameManager.StartEndlessMode();
                 break;
         }
     }

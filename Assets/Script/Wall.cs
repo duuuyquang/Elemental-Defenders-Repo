@@ -36,6 +36,7 @@ public class Wall : MonoBehaviour
             switch(gameManager.GameMode)
             {
                 case GameManager.MODE_ATTACK:
+                case GameManager.MODE_ENDLESS:
                     Enemy enemy = other.gameObject.GetComponent<Enemy>();
                     ProcessExplosion(other.gameObject);
                     ProcessEnemyAttack(other.gameObject);
@@ -84,7 +85,8 @@ public class Wall : MonoBehaviour
         if (curPercentage <= LOW_HP_RATE)
         {
             StartCoroutine("LowHPEffect");
-        } else
+        } 
+        else
         {
             StopCoroutine("LowHPEffect");
             Material hpBarColor = hpBar.GetComponent<Renderer>().material;
