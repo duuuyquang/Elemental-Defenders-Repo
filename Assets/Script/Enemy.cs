@@ -11,6 +11,8 @@ public class Enemy : MonoBehaviour
     private Element element;
     private static GameObject[] cacheAllEnemyObjects = new GameObject[] {};
 
+    const float SPEED_RUSH_END_WAVE = 13f;
+
     public int ElementType
     {
         get { return elementType; }
@@ -61,7 +63,7 @@ public class Enemy : MonoBehaviour
             }
             else
             {
-                speed = 13f; // to rush end the wave
+                speed = SPEED_RUSH_END_WAVE; // to rush end the wave
             }
         }
 

@@ -14,7 +14,7 @@ public class Player : MonoBehaviour
     public GameObject gaugeExplosion;
 
     private Vector3[] playerSpawnPos =
-{
+    {
         new Vector3(-6, 0, -PLAYER_SPAWN_POS_Z),
         new Vector3(0, 0, -PLAYER_SPAWN_POS_Z),
         new Vector3(6, 0, -PLAYER_SPAWN_POS_Z)
@@ -22,7 +22,6 @@ public class Player : MonoBehaviour
 
 
     private bool isAttacking = false;
-
     private float initialGaugeScale = 1f;
     private float curGauge = 0f;
     private int perfectChain = 0;
@@ -83,7 +82,7 @@ public class Player : MonoBehaviour
         if (gameManager.PlayerSpawnable)
         {
             int bonusScore = 0;
-            if (gameManager.GameMode == GameManager.MODE_ATTACK)
+            if ( gameManager.HasScoreSystem() )
             {
                 if (!bonusGauge)
                 {
@@ -148,7 +147,8 @@ public class Player : MonoBehaviour
         if (IsAttackable()) 
         {
             maxGaugeEffect.SetActive(true);
-        } else
+        }
+        else
         {
             maxGaugeEffect.SetActive(false);
         }

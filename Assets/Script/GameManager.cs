@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
 	const float ENEMY_SPEED_EASY = 3f;
 	const float ENEMY_SPEED_MEDIUM = 7f;
 	const float ENEMY_SPEED_HARD = 10f;
+	const float ENEMY_SPEED_MAX = 13f;
 
 	const float ENEMY_REGEN_RATE_EASY = 0.25f;
 	const float ENEMY_REGEN_RATE_MEDIUM = 0.75f;
@@ -94,8 +95,9 @@ public class GameManager : MonoBehaviour
 	private TextMeshPro scoreText;
 	private TextMeshPro comboText;
 	private TextMeshPro comboScoreText;
+	private TextMeshPro turnText;
 
-	private bool playerSpawnable = false;
+    private bool playerSpawnable = false;
 	private bool isGameOver = true;
 	private int difficulty;
 	private int mode;
@@ -103,7 +105,14 @@ public class GameManager : MonoBehaviour
 	private int timer;
 	private bool showInstruction = true;
 	private bool isPause = false;
+	private int curTurn;
 
+	public int CurTurn { 
+		get { return curTurn; }  
+		set {
+			curTurn = Mathf.Max(0,value); 
+		} 
+	}
 
 	public int Difficulty { get { return difficulty; } }
 
@@ -145,7 +154,9 @@ public class GameManager : MonoBehaviour
 		comboText = GameObject.Find("ComboText").GetComponent<TextMeshPro>();
 		scoreText = GameObject.Find("ScoreText").GetComponent<TextMeshPro>();
 		comboScoreText = GameObject.Find("ComboScoreText").GetComponent<TextMeshPro>();
-		timer = TIMER_DEFAULT_VALUE;
+		turnText = GameObject.Find("TurnText").GetComponent<TextMeshPro>();
+        timer = TIMER_DEFAULT_VALUE;
+		curTurn = 0;
 	}
 
 	void Update()
@@ -153,7 +164,8 @@ public class GameManager : MonoBehaviour
         if (!isGameOver)
 		{
 			DisplayScore();
-			DisplayTimeText();
+            DisplayTurn();
+            DisplayTime();
 			UpdateGameByMode();
 			HandlePlayerInput();
 		}
@@ -178,7 +190,7 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
-	private void DisplayTimeText()
+	private void DisplayTime()
 	{
 		if (timer >= 0)
 		{
@@ -209,13 +221,26 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
+	public bool HasScoreSystem()
+	{
+		return mode != MODE_DEFENSE;
+	}
+
 	public void DisplayScore()
 	{
-        scoreText.text = "Score: " + score;
-        if (mode == MODE_DEFENSE )
+        scoreText.text = "";
+        if (HasScoreSystem())
 		{
-			scoreText.text = "";
-		}
+            scoreText.text = "Score: " + score;
+        }
+	}
+
+	void DisplayTurn()
+	{
+        turnText.text = "";
+		if(mode == MODE_ENDLESS) {
+            turnText.text = "Turn: " + curTurn;
+        }
 	}
 
 	public void DisplayCombo(int combo)
@@ -247,7 +272,6 @@ public class GameManager : MonoBehaviour
 			highComboPartical.SetActive(false);
 			highComboPartical.SetActive(true);
 		}
-
 
 		if (combo <= COMBO_LONG)
 		{
@@ -319,6 +343,7 @@ public class GameManager : MonoBehaviour
                 {
                     RestartPlayerSpawn();
                     SpawnEnemy();
+                    curTurn++;
                 }
                 break;
             default:
@@ -494,6 +519,7 @@ public class GameManager : MonoBehaviour
 	public float GetEnemySpeed()
 	{
 		float speed;
+
 		switch (difficulty)
 		{
 			case LEVEL_EASY:
@@ -510,7 +536,12 @@ public class GameManager : MonoBehaviour
 				break;
 		}
 
-		return speed;
+        if (GameMode == MODE_ENDLESS)
+        {
+            speed = Mathf.Min(speed + curTurn/2, ENEMY_SPEED_MAX);
+        }
+
+        return speed;
 	}
 
 	public void StartEndlessMode()

@@ -6,7 +6,7 @@ public class OnTouchEnemy : MonoBehaviour
 {
     const float SPEED_DEFENSE = 0f;
     const float SPEED_ATTACK = 10f;
-    const float SPEED_ENDELSS = 10f;
+    const float SPEED_ENDLESS = 10f;
 
     private Element element;
 
@@ -63,7 +63,7 @@ public class OnTouchEnemy : MonoBehaviour
                 speed = SPEED_ATTACK;
                 break;
             case GameManager.MODE_ENDLESS:
-                speed = SPEED_ENDELSS;
+                speed = SPEED_ENDLESS;
                 break;
         }
     }
