@@ -44,11 +44,14 @@ public class OnTouchEnemy : MonoBehaviour
             case Element.TYPE_WOOD:
                 element = new Wood();
                 break;
+            case Element.TYPE_HEAVEN:
+                element = new Heaven();
+                break;
         }
 
         if (gameManager.GameMode == GameManager.MODE_DEFENSE)
         {
-            animator.SetBool("isDefending", true);
+            animator.SetBool("isDefend", true);
         }
     }
 

@@ -5,10 +5,12 @@ using UnityEngine;
 
 public abstract class Element
 {
-    public const int TYPE_FIRE  = 1;
-    public const int TYPE_WATER = 2;
-    public const int TYPE_WOOD  = 3;
-    public const int TYPE_MAX   = 3;
+    public const int TYPE_FIRE      = 1;
+    public const int TYPE_WATER     = 2;
+    public const int TYPE_WOOD      = 3;
+    public const int TYPE_SOUL      = 4;
+    public const int TYPE_HEAVEN    = 5;
+    public const int TYPE_MAX       = 5;
 
     public const int TYPE_STRONGER = 1;
     public const int TYPE_WEAKER = 0;
@@ -33,23 +35,5 @@ public abstract class Element
         this.type = type;
     }
 
-    public int GetTypeAdvantage(int typeToCompare)
-    {
-        if(type == typeToCompare)
-        {
-            return -1;
-        }
-
-        switch (type)
-        {
-            case TYPE_FIRE:
-                return typeToCompare == TYPE_WATER ? 0 : 1;
-            case TYPE_WATER:
-                return typeToCompare == TYPE_WOOD ? 0 : 1;
-            case TYPE_WOOD:
-                return typeToCompare == TYPE_FIRE ? 0 : 1;
-            default:
-                return 0;
-        }
-    }
+    public abstract int GetTypeAdvantage(int typeToCompare);
 }

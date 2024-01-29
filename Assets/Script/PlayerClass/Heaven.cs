@@ -2,25 +2,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Fire : Element
+public class Heaven : Element
 {
-    public Fire()
+    public Heaven()
     {
-        this.type = TYPE_FIRE;
+        this.type = TYPE_HEAVEN;
     }
 
     public override int GetTypeAdvantage(int typeToCompare)
     {
         int result;
 
-        switch(typeToCompare)
+        switch (typeToCompare)
         {
             case TYPE_WATER:
-            case TYPE_SOUL:
+            case TYPE_WOOD:
+            case TYPE_FIRE:
                 result = TYPE_WEAKER;
                 break;
-            case TYPE_WOOD:
-            case TYPE_HEAVEN:
+            case TYPE_SOUL:
                 result = TYPE_STRONGER;
                 break;
             default:
@@ -31,3 +31,4 @@ public class Fire : Element
         return result;
     }
 }
+

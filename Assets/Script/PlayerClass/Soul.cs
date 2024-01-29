@@ -2,26 +2,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Fire : Element
+public class Soul : Element
 {
-    public Fire()
+    public Soul()
     {
-        this.type = TYPE_FIRE;
+        this.type = TYPE_SOUL;
     }
 
     public override int GetTypeAdvantage(int typeToCompare)
     {
         int result;
 
-        switch(typeToCompare)
+        switch (typeToCompare)
         {
             case TYPE_WATER:
-            case TYPE_SOUL:
-                result = TYPE_WEAKER;
-                break;
             case TYPE_WOOD:
-            case TYPE_HEAVEN:
+            case TYPE_FIRE:
                 result = TYPE_STRONGER;
+                break;
+            case TYPE_HEAVEN:
+                result = TYPE_WEAKER;
                 break;
             default:
                 result = TYPE_DRAW;
@@ -31,3 +31,4 @@ public class Fire : Element
         return result;
     }
 }
+

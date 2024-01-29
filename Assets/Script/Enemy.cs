@@ -36,6 +36,9 @@ public class Enemy : MonoBehaviour
             case Element.TYPE_WOOD:
                 element = new Wood();
                 break;
+            case Element.TYPE_SOUL:
+                element = new Soul();
+                break;
         }
     }
 

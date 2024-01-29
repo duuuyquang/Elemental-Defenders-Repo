@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using TMPro;
 using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
@@ -371,7 +370,13 @@ public class GameManager : MonoBehaviour
 			SetIndicator(player.CurPlayerSpawnPosIndex);
 		}
 
-		if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            player.SpawnElement(Element.TYPE_HEAVEN);
+            SetIndicator(player.CurPlayerSpawnPosIndex);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
 		{
 			isPause = !isPause;
 			if (isPause)
