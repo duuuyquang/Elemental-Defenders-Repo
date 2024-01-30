@@ -21,11 +21,12 @@ public class Player : MonoBehaviour
     };
 
 
-    private bool isAttacking = false;
-    private float initialGaugeScale = 1f;
-    private float curGauge = 0f;
-    private int perfectChain = 0;
-    private int curPlayerSpawnPosIndex = 0;
+    private bool    isAttacking = false;
+    private float   initialGaugeScale = 1f;
+    private float   curGauge = 0f;
+    private int     perfectChain = 0;
+    private int     curPlayerSpawnPosIndex = 0;
+    private int     spawnableNum = 3;
 
     private SoundController soundController;
     private GameManager gameManager;
@@ -51,6 +52,12 @@ public class Player : MonoBehaviour
         set { perfectChain = Mathf.Max(value, 0); }
     }
 
+    public int SpawnableNum
+    {
+        get { return spawnableNum; }
+        set { spawnableNum = value; }
+    }
+
     private void Start()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
@@ -69,6 +76,11 @@ public class Player : MonoBehaviour
             ReleaseGaugeBarPower();
             float regenHP = (Bullet.DAMAGE + player.PerfectChain) * gameManager.GetPlayerCurrentRegenRate();
             playerWall.RegenHP(regenHP);
+        }
+
+        if (spawnableNum <= 0)
+        {
+            gameManager.BlockPlayerSpawn();
         }
     }
 
@@ -100,10 +112,12 @@ public class Player : MonoBehaviour
                 playerPrefabs[type].transform.rotation);
 
             curPlayerSpawnPosIndex++;
-            if (curPlayerSpawnPosIndex > 2)
+            if(curPlayerSpawnPosIndex > 2)
             {
-                gameManager.BlockPlayerSpawn();
+                curPlayerSpawnPosIndex = 0;
             }
+
+            spawnableNum--;
         }
     }
 

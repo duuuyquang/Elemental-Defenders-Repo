@@ -31,6 +31,8 @@ public class GameManager : MonoBehaviour
 	const float PLAYER_REGEN_RATE_MEDIUM = 1f;
 	const float PLAYER_REGEN_RATE_HARD = 0.5f;
 
+	const int PLAYER_POS_INDEX_MAX = 2;
+
 	const float ENEMY_SPAWN_DELAY_SEC = 0.4f;
 	const int SEC_COUNT_BEFORE_START = 3;
 
@@ -52,13 +54,18 @@ public class GameManager : MonoBehaviour
 	public const int SEC_DELAY_AFTER_SHOOT = 2;
 
 	public const int COMBO_BEGIN = 1;
-    public const int COMBO_SHORT = 4;
-    public const int COMBO_MEDIUM = 7;
-    public const int COMBO_LONG = 10;
+	public const int COMBO_SHORT = 4;
+	public const int COMBO_MEDIUM = 7;
+	public const int COMBO_LONG = 10;
 
 	const int COMBO_TEXT_BEGIN = 15;
 	const int COMBO_TEXT_INCREASE_STEP = 1;
 
+	const int ENEMY_ULTIMATE_TYPE_SPAM_WAVES	= 1;
+	const int ENEMY_ULTIMATE_TYPE_FAKE			= 2;
+	const int ENEMY_ULTIMATE_TYPE_MAX			= 3;
+
+	public GameObject[] enemiesFakePrefabs;
 	public GameObject[] enemiesPrefabs;
 	public GameObject indicator;
 	public GameObject enemyWall;
@@ -96,7 +103,7 @@ public class GameManager : MonoBehaviour
 	private TextMeshPro comboScoreText;
 	private TextMeshPro turnText;
 
-    private bool playerSpawnable = false;
+	private bool playerSpawnable = false;
 	private bool isGameOver = true;
 	private int difficulty;
 	private int mode;
@@ -106,11 +113,11 @@ public class GameManager : MonoBehaviour
 	private bool isPause = false;
 	private int curTurn;
 
-	public int CurTurn { 
-		get { return curTurn; }  
+	public int CurTurn {
+		get { return curTurn; }
 		set {
-			curTurn = Mathf.Max(0,value); 
-		} 
+			curTurn = Mathf.Max(1, value);
+		}
 	}
 
 	public int Difficulty { get { return difficulty; } }
@@ -154,17 +161,17 @@ public class GameManager : MonoBehaviour
 		scoreText = GameObject.Find("ScoreText").GetComponent<TextMeshPro>();
 		comboScoreText = GameObject.Find("ComboScoreText").GetComponent<TextMeshPro>();
 		turnText = GameObject.Find("TurnText").GetComponent<TextMeshPro>();
-        timer = TIMER_DEFAULT_VALUE;
+		timer = TIMER_DEFAULT_VALUE;
 		curTurn = 0;
 	}
 
 	void Update()
 	{
-        if (!isGameOver)
+		if (!isGameOver)
 		{
 			DisplayScore();
-            DisplayTurn();
-            DisplayTime();
+			DisplayTurn();
+			DisplayTime();
 			UpdateGameByMode();
 			HandlePlayerInput();
 		}
@@ -172,7 +179,7 @@ public class GameManager : MonoBehaviour
 		if (Input.GetKeyDown(KeyCode.G))
 		{
 			ToggleInstruction();
-		}
+        }
 	}
 
 	private void ToggleInstruction()
@@ -227,19 +234,19 @@ public class GameManager : MonoBehaviour
 
 	public void DisplayScore()
 	{
-        scoreText.text = "";
-        if (HasScoreSystem())
+		scoreText.text = "";
+		if (HasScoreSystem())
 		{
-            scoreText.text = "Score: " + score;
-        }
+			scoreText.text = "Score: " + score;
+		}
 	}
 
 	void DisplayTurn()
 	{
-        turnText.text = "";
-		if(mode == MODE_ENDLESS) {
-            turnText.text = "Turn: " + curTurn;
-        }
+		turnText.text = "";
+		if (mode == MODE_ENDLESS) {
+			turnText.text = "Turn: " + curTurn;
+		}
 	}
 
 	public void DisplayCombo(int combo)
@@ -277,8 +284,8 @@ public class GameManager : MonoBehaviour
 			comboText.fontSize += COMBO_TEXT_INCREASE_STEP;
 		}
 		comboText.text = "Combo x" + combo;
-        BouncyComboTextEffect();
-        DisplayComboScore(combo);
+		BouncyComboTextEffect();
+		DisplayComboScore(combo);
 	}
 
 	public void DisplayComboScore(int chain)
@@ -291,7 +298,7 @@ public class GameManager : MonoBehaviour
 		}
 		comboScoreText.text = displayText;
 		comboScoreText.color = Color.yellow;
-    }
+	}
 
 	public void ResetChain()
 	{
@@ -321,7 +328,7 @@ public class GameManager : MonoBehaviour
 				}
 				if (enemyNum <= 0 && !player.IsAttacking)
 				{
-					RestartPlayerSpawn();
+					RestartPlayerSpawn(3);
 					SpawnEnemy();
 				}
 				break;
@@ -332,20 +339,29 @@ public class GameManager : MonoBehaviour
 				}
 				if (enemyNum <= 0)
 				{
-					RestartPlayerSpawn();
+					RestartPlayerSpawn(3);
 					SpawnEnemy();
 					ShiftPlayerPos();
 				}
 				break;
-            case MODE_ENDLESS:
-                if (enemyNum <= 0 && !player.IsAttacking)
-                {
-                    RestartPlayerSpawn();
-                    SpawnEnemy();
+			case MODE_ENDLESS:
+				if (enemyNum <= 0 && !player.IsAttacking)
+				{
                     curTurn++;
-                }
-                break;
-            default:
+                    if (curTurn%10 == 0) // each 10 level enemy cast a special effect
+					{
+                        RestartPlayerSpawn(3);
+						int index = Random.Range(1, ENEMY_ULTIMATE_TYPE_MAX);
+                        CastEnemyUltimate(index);
+                    } 
+					else
+					{
+                        RestartPlayerSpawn(3);
+                        SpawnEnemy();
+                    }
+				}
+				break;
+			default:
 				return;
 		}
 	}
@@ -370,13 +386,13 @@ public class GameManager : MonoBehaviour
 			SetIndicator(player.CurPlayerSpawnPosIndex);
 		}
 
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            player.SpawnElement(Element.TYPE_HEAVEN);
-            SetIndicator(player.CurPlayerSpawnPosIndex);
-        }
+		if (Input.GetKeyDown(KeyCode.R))
+		{
+			player.SpawnElement(Element.TYPE_HEAVEN);
+			SetIndicator(player.CurPlayerSpawnPosIndex);
+		}
 
-        if (Input.GetKeyDown(KeyCode.Escape))
+		if (Input.GetKeyDown(KeyCode.Escape))
 		{
 			isPause = !isPause;
 			if (isPause)
@@ -406,7 +422,7 @@ public class GameManager : MonoBehaviour
 					bonusGauge = GameObject.Find("BonusGauge").GetComponent<BonusGauge>();
 				}
 
-				if (player.CurPlayerSpawnPosIndex <= 2)
+				if (player.CurPlayerSpawnPosIndex <= PLAYER_POS_INDEX_MAX )
 				{
 					indicator.transform.position = player.PlayerSpawnPos[index];
 					bonusGauge.RegenGaugeByPercentage(ENEMY_SPAWN_DELAY_SEC * 10);
@@ -419,7 +435,7 @@ public class GameManager : MonoBehaviour
 				break;
 
 			case MODE_DEFENSE:
-				if (player.CurPlayerSpawnPosIndex <= 2)
+				if (player.CurPlayerSpawnPosIndex <= PLAYER_POS_INDEX_MAX )
 				{
 					indicator.transform.position = player.PlayerSpawnPos[index];
 				}
@@ -429,28 +445,75 @@ public class GameManager : MonoBehaviour
 
 	void SpawnEnemy()
 	{
-		indicator.SetActive(true);
 		StartCoroutine(SpawnEnemyByDelay(ENEMY_SPAWN_DELAY_SEC));
 	}
 
-	IEnumerator SpawnEnemyByDelay(float seconds)
+	void CastEnemyUltimate(int type)
 	{
-		for (int i = 0; i < ENEMY_NUM; i++)
+		switch(type)
 		{
-			int randomIndex = Random.Range(0, enemiesPrefabs.Length);
-			Instantiate(
-				enemiesPrefabs[randomIndex],
-				enemySpawnPos[i],
-				enemiesPrefabs[randomIndex].transform.rotation);
-			yield return new WaitForSeconds(seconds);
+			case ENEMY_ULTIMATE_TYPE_SPAM_WAVES:
+				StartCoroutine(SpawnEnemyByWaveNum(2));
+				break;
+			case ENEMY_ULTIMATE_TYPE_FAKE:
+                StartCoroutine(SpawnEnemyFakeByDelay(ENEMY_SPAWN_DELAY_SEC));
+                break;
 		}
 	}
 
-	void RestartPlayerSpawn()
+	IEnumerator SpawnEnemyByWaveNum(int waveNum)
 	{
-		player.CurPlayerSpawnPosIndex = 0;
+		for (int i = 0; i < waveNum; i++)
+		{
+			StartCoroutine(SpawnEnemyByDelay(ENEMY_SPAWN_DELAY_SEC));
+			yield return new WaitForSeconds(1.2f);
+		}
+    }
+
+	IEnumerator SpawnEnemyByDelay(float seconds)
+	{
+        for (int i = 0; i < ENEMY_NUM; i++)
+		{
+            SpawnEnemy(i);
+            yield return new WaitForSeconds(seconds);
+		}
+	}
+
+    IEnumerator SpawnEnemyFakeByDelay(float seconds)
+    {
+        for (int i = 0; i < ENEMY_NUM; i++)
+        {
+            SpawnEnemyFake(i);
+            yield return new WaitForSeconds(seconds);
+        }
+    }
+
+    void SpawnEnemy(int i)
+	{
+        bool isHighTurn = curTurn > 15;
+        int enemyPrefabsLength = isHighTurn ? enemiesPrefabs.Length : 3;
+        int randomIndex = Random.Range(0, enemyPrefabsLength);
+        Instantiate(
+            enemiesPrefabs[randomIndex],
+            enemySpawnPos[i],
+            enemiesPrefabs[randomIndex].transform.rotation);
+    }
+
+	void SpawnEnemyFake(int i)
+	{
+        int randomIndex = Random.Range(0, enemiesFakePrefabs.Length);
+        Instantiate(
+			enemiesFakePrefabs[randomIndex],
+			enemySpawnPos[i],
+            enemiesFakePrefabs[randomIndex].transform.rotation);
+    }
+
+	void RestartPlayerSpawn(int spawnNum)
+	{
 		SetIndicator(player.CurPlayerSpawnPosIndex);
-		playerSpawnable = true;
+        indicator.SetActive(true);
+        playerSpawnable = true;
+		player.SpawnableNum = spawnNum;
 	}
 
 	void ShiftPlayerPos()
