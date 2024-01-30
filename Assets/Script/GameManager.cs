@@ -31,7 +31,7 @@ public class GameManager : MonoBehaviour
 	const float PLAYER_REGEN_RATE_MEDIUM = 1f;
 	const float PLAYER_REGEN_RATE_HARD = 0.5f;
 
-	const int PLAYER_POS_INDEX_MAX = 2;
+	public const int PLAYER_POS_INDEX_MAX = 2;
 
 	const float ENEMY_SPAWN_DELAY_SEC = 0.4f;
 	const int SEC_COUNT_BEFORE_START = 3;
@@ -243,10 +243,7 @@ public class GameManager : MonoBehaviour
 
 	void DisplayTurn()
 	{
-		turnText.text = "";
-		if (mode == MODE_ENDLESS) {
-			turnText.text = "Turn: " + curTurn;
-		}
+		turnText.text = "Turn: " + curTurn;
 	}
 
 	public void DisplayCombo(int combo)
@@ -328,7 +325,8 @@ public class GameManager : MonoBehaviour
 				}
 				if (enemyNum <= 0 && !player.IsAttacking)
 				{
-					RestartPlayerSpawn(3);
+                    curTurn++;
+                    RestartPlayerSpawn(3);
 					SpawnEnemy();
 				}
 				break;
@@ -339,7 +337,8 @@ public class GameManager : MonoBehaviour
 				}
 				if (enemyNum <= 0)
 				{
-					RestartPlayerSpawn(3);
+                    curTurn++;
+                    RestartPlayerSpawn(3);
 					SpawnEnemy();
 					ShiftPlayerPos();
 				}

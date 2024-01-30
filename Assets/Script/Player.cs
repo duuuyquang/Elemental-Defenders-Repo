@@ -76,6 +76,7 @@ public class Player : MonoBehaviour
             ReleaseGaugeBarPower();
             float regenHP = (Bullet.DAMAGE + player.PerfectChain) * gameManager.GetPlayerCurrentRegenRate();
             playerWall.RegenHP(regenHP);
+            curPlayerSpawnPosIndex = 0;
         }
 
         if (spawnableNum <= 0)
@@ -112,7 +113,7 @@ public class Player : MonoBehaviour
                 playerPrefabs[type].transform.rotation);
 
             curPlayerSpawnPosIndex++;
-            if(curPlayerSpawnPosIndex > 2)
+            if(curPlayerSpawnPosIndex > GameManager.PLAYER_POS_INDEX_MAX)
             {
                 curPlayerSpawnPosIndex = 0;
             }
