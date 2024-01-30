@@ -34,7 +34,6 @@ public class EnemyWall : MonoBehaviour
         switch (gameManager.GameMode)
         {
             case GameManager.MODE_ATTACK:
-            case GameManager.MODE_ENDLESS:
                 if (otherObj.CompareTag("Bullet"))
                 {
                     ProcessExplosion(otherObj);
@@ -44,10 +43,19 @@ public class EnemyWall : MonoBehaviour
                     if (hp <= 0)
                     {
                         StartCoroutine(GameOver());
-                    } else
+                    }
+                    else
                     {
                         StartCoroutine(DelayAttackBeforeNextSpawn(GameManager.SEC_DELAY_AFTER_SHOOT));
                     }
+                }
+                break;
+            case GameManager.MODE_ENDLESS:
+                if (otherObj.CompareTag("Bullet"))
+                {
+                    ProcessExplosion(otherObj);
+                    Destroy(otherObj);
+                    StartCoroutine(DelayAttackBeforeNextSpawn(GameManager.SEC_DELAY_AFTER_SHOOT));
                 }
 
                 if (otherObj.CompareTag("Player"))
